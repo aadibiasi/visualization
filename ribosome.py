@@ -10,7 +10,3 @@ class Ribosome:
     @pos.setter
     def pos(self, value):
         self._p = value
-
-if __name__ == '__main__':
-    r = Ribosome()
-    print(r.pos)

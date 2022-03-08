@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from ribosome import Ribosome
+from state import State
 
 class LogicHandler:
 
@@ -14,9 +14,9 @@ class LogicHandler:
     def tsv(self):
         return self.tsv
 
-    @tsv.setter
-    def tsv(self, newFileName):
-        self.__init__(newFileName)
+    #@tsv.setter
+    #def tsv(self, newFileName):
+    #    self.__init__(newFileName)
 
     @property
     def firings(self):
@@ -56,4 +56,4 @@ class LogicHandler:
     def findRibosomes(self,t):
         times = self.firings['time'].to_numpy()
         ind = np.digitize(t,times) - 1
-        return self.ribosomePos.iloc[ind]
+        return State(self.ribosomePos.iloc[ind])
