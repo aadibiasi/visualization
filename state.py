@@ -4,10 +4,10 @@ from mrna import MRNA
 class State:
 
     def __init__(self,pos):
-        self._mrna = MRNA(pos)
-        self._ribos = []
+        self.mrna = MRNA()
+        self.ribos = []
         for ind in pos:
-            self._ribos.append(Ribosome(ind))
+            self.ribos.append(Ribosome(ind))
 
     @property
     def ribos(self):

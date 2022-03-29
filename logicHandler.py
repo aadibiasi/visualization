@@ -5,10 +5,10 @@ from state import State
 class LogicHandler:
 
     def __init__(self,tsvFileName = ""):
-        self._tsv = tsvFileName
-        self._firings = self.genFirings()
-        self._numRibosomes = self._firings['rxn'].value_counts().initiate
-        self._ribosomePos = self.genPositions()
+        self.tsv = tsvFileName
+        self.firings = self.genFirings()
+        self.numRibosomes = self.firings['rxn'].value_counts().initiate
+        self.ribosomePos = self.genPositions()
 
     @property
     def tsv(self):
@@ -46,8 +46,8 @@ class LogicHandler:
         return pd.read_csv(self._tsv,sep='\t')
 
     def genPositions(self):
-        df = pd.DataFrame(index=range(self._firings['line'].max()),columns=range(self._numRibosomes)).fillna(-1)
-        df.insert(len(df.columns),'time',self._firings.time)
+        df = pd.DataFrame(index=range(self.firings['line'].max()),columns=range(self.numRibosomes)).fillna(-1)
+        df.insert(len(df.columns),'time',self.firings.time)
         for ind in self.firings.index:
             rxnType = self.firings['rxn'][ind]
             if rxnType[0] == 'i':
@@ -66,6 +66,6 @@ class LogicHandler:
         return df
 
     def findRibosomes(self,t):
-        times = self._firings['time'].to_numpy()
+        times = self.firings['time'].to_numpy()
         ind = np.digitize(t,times) - 1
-        return State(self._ribosomePos.iloc[ind])
+        return State(self.ribosomePos.iloc[ind])

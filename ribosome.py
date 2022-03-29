@@ -1,7 +1,7 @@
 class Ribosome:
 
     def __init__(self,p = -1):
-        self._pos = p
+        self.pos = p
 
     @property
     def pos(self):
