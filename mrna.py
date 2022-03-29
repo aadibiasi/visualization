@@ -1,12 +1,12 @@
 class MRNA:
 
     def __init__(self,pos):
-        self.riboPos = pos
+        self._riboPos = pos
 
     @property
     def riboPos(self):
-        return self._r
+        return self._riboPos
 
     @riboPos.setter
     def riboPos(self, value):
-        self._r = value
+        self._riboPos = value

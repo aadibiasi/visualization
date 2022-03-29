@@ -4,18 +4,19 @@ from state import State
 class Plotter:
 
     def __init__(self,tsvFileName):
-        self.logic = LogicHandler(tsvFileName)
+        self._logic = LogicHandler(tsvFileName)
 
     @property
     def logic(self):
-        return self.logic
+        return self._logic
 
     def plot(self,t):
-        state = self.logic.findRibosomes(t)
-        ribos = state.ribos()
-        mrna = state.mrna()
-        print(ribos[t])
+        state = self._logic.findRibosomes(t)
+        ribos = state.ribos
+        mrna = state.mrna
+        for r in ribos:
+            print(r.pos)
 
 if __name__ == '__main__':
     p = Plotter("model.rxns.tsv")
-    p.plot(3)
+    p.plot(101)

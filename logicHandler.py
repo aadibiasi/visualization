@@ -5,37 +5,49 @@ from state import State
 class LogicHandler:
 
     def __init__(self,tsvFileName = ""):
-        self.tsv = tsvFileName
-        self.firings = self.genFirings()
-        self.numRibosomes = self.firings['rxn'].value_counts().initiate
-        self.ribosomePos = self.genPositions()
+        self._tsv = tsvFileName
+        self._firings = self.genFirings()
+        self._numRibosomes = self._firings['rxn'].value_counts().initiate
+        self._ribosomePos = self.genPositions()
 
     @property
     def tsv(self):
-        return self.tsv
+        return self._tsv
 
-    #@tsv.setter
-    #def tsv(self, newFileName):
-    #    self.__init__(newFileName)
+    @tsv.setter
+    def tsv(self, newFileName):
+        self._tsv = newFileName
 
     @property
     def firings(self):
-        return self._p
+        return self._firings
+
+    @firings.setter
+    def firings(self, newFirings):
+        self._firings = newFirings
 
     @property
     def numRibosomes(self):
-        return self._p
+        return self._numRibosomes
+
+    @numRibosomes.setter
+    def numRibosomes(self, newNum):
+        self._numRibosomes = newNum
 
     @property
     def ribosomePos(self):
-        return self._p
+        return self._ribosomePos
+
+    @ribosomePos.setter
+    def ribosomePos(self, newPos):
+        self._ribosomePos = newPos
 
     def genFirings(self):
-        return pd.read_csv(self.tsv,sep='\t')
+        return pd.read_csv(self._tsv,sep='\t')
 
     def genPositions(self):
-        df = pd.DataFrame(index=range(self.firings['line'].max()),columns=range(self.numRibosomes)).fillna(-1)
-        df.insert(len(df.columns),'time',self.firings.time)
+        df = pd.DataFrame(index=range(self._firings['line'].max()),columns=range(self._numRibosomes)).fillna(-1)
+        df.insert(len(df.columns),'time',self._firings.time)
         for ind in self.firings.index:
             rxnType = self.firings['rxn'][ind]
             if rxnType[0] == 'i':
@@ -54,6 +66,6 @@ class LogicHandler:
         return df
 
     def findRibosomes(self,t):
-        times = self.firings['time'].to_numpy()
+        times = self._firings['time'].to_numpy()
         ind = np.digitize(t,times) - 1
-        return State(self.ribosomePos.iloc[ind])
+        return State(self._ribosomePos.iloc[ind])
