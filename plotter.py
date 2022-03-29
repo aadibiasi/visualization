@@ -13,8 +13,9 @@ class Plotter:
         mrna = state.mrna
         # import IPython;IPython.embed()
         ax.axhline(y=mrna.y, color='k', linestyle='-', linewidth=3)
-        for ribo in ribos:
+        for iribo,ribo in enumerate(ribos):
             if ribo.pos != -1:
+                print(f"Ribo ind: {iribo}, ribo pos: {ribo.pos}")
                 ax.plot(ribo.pos, mrna.y, 'ro')
         
 
@@ -24,6 +25,8 @@ if __name__ == '__main__':
     # make a plotter
     P = Plotter()
     for i in [1,10,100]:
+        print("###")
+        print(f"current time: {i}")
         # instantiate an axis
         ax = plt.gca()
         # get the state you want to plot
@@ -34,3 +37,5 @@ if __name__ == '__main__':
         plt.ylim([0,1])
         plt.xlim([0,101])
         plt.savefig(f"test_{i:04d}.png")
+        plt.close()
+        # break

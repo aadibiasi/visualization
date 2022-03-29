@@ -64,9 +64,12 @@ class LogicHandler:
                 if col == pos-1:
                     df.loc[ind:, colNum] = pos
                     break
+        df = df.set_index("time")
         return df
 
     def findRibosomes(self,t):
         times = self.firings['time'].to_numpy()
         ind = np.digitize(t,times) - 1
-        return State(self.ribosomePos.iloc[ind])
+        cur_time = times[ind]
+        # import IPython,sys;IPython.embed();sys.exit()
+        return State(self.ribosomePos.loc[cur_time])
