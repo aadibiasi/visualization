@@ -1,3 +1,4 @@
+from telnetlib import IP
 import pandas as pd
 import numpy as np
 from state import State
@@ -61,7 +62,7 @@ class LogicHandler:
             for col in row:
                 colNum += 1
                 if col == pos-1:
-                    df[colNum][ind:] = pos
+                    df.loc[ind:, colNum] = pos
                     break
         return df
 

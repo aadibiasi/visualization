@@ -19,17 +19,18 @@ class Plotter:
         
 
 if __name__ == '__main__':
-    # instantiate an axis
-    ax = plt.gca()
     # make a logic handler first
     LH = LogicHandler('model.rxns.tsv')
-    # get the state you want to plot
-    S = LH.findRibosomes(5)
     # make a plotter
     P = Plotter()
-    # plot the state
-    P.plot(S, ax=ax)
-    # save the plot
-    plt.ylim([0,1])
-    plt.xlim([0,101])
-    plt.savefig("test.png")
+    for i in [1,10,100]:
+        # instantiate an axis
+        ax = plt.gca()
+        # get the state you want to plot
+        S = LH.findRibosomes(i)
+        # plot the state
+        P.plot(S, ax=ax)
+        # save the plot
+        plt.ylim([0,1])
+        plt.xlim([0,101])
+        plt.savefig(f"test_{i:04d}.png")
