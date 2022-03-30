@@ -23,7 +23,7 @@ class MovieGen:
 
         # we need path to mencoder 
         parser.add_argument('-mp','--mencoder_path', type=str, 
-                            default=os.path.join(*["..","mplayer"]),
+                            default=os.path.join(*["..","mplayer","mencoder.exe"]),
                             help='Path to mencoder')
 
         # we need path to data file
