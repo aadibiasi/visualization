@@ -58,6 +58,8 @@ class MovieGen:
             # TODO: we should probably report the progress here with a progress bar
             #print("###")
             #print(f"current time: {i/100.}")
+            if os.path.exists(f"{i:05d}.png"):
+                continue
             # instantiate an axis
             ax = plt.gca()
             # get the state you want to plot
@@ -67,8 +69,8 @@ class MovieGen:
             # current time
             plt.text(70,0.9,f'time: {i/10} seconds')
             # vertical ticks for each ribosome spot
-            for x in range(0,101,1):
-                plt.axvline(x,ymin=0.49,ymax=0.51,color='black',zorder=0)
+            # for x in range(0,101,1):
+            #     plt.axvline(x,ymin=0.49,ymax=0.51,color='black',zorder=0)
             # sets x/y limits
             plt.ylim([0,1])
             plt.xlim([0,100])
@@ -76,7 +78,7 @@ class MovieGen:
             ax.axes.yaxis.set_visible(False)
             ax.axes.xaxis.set_visible(False)
             # save the current frame
-            plt.savefig(f"frame_{i:04d}.png")
+            plt.savefig(f"{i:05d}.png")
             # close current frame to plot the next one
             plt.close()
         
@@ -95,11 +97,17 @@ class MovieGen:
             # -vf scale=1024:768 -oac copy -o movie.avi
             
             # make our command list for subprocess
-            command = [self.mencoder_path, 'mf://*.png', 
-                '-mf', 'fps=60:type=png', '-ovc', 'lavc', 
-                '-lavcopts', 'vcodec=mpeg4:mbd=2:trell:vbitrate=7000', 
-                '-oac', 'copy', '-o', 'movie.avi'
+            # command = [self.mencoder_path, 'mf://*.png', 
+            #     '-mf', 'fps=60:type=png', '-ovc', 'lavc', 
+            #     '-lavcopts', 'vcodec=mpeg4:mbd=2:trell:vbitrate=7000', 
+            #     '-oac', 'copy', '-o', 'movie.avi'
+            # ]
+            command = [
+                os.path.join(*['C:\\','Program Files','ImageMagick-7.1.0-Q16-HDRI','ffmpeg.exe']),
+                '-i', '%05d.png', '-f', 'mp4', '-pix_fmt', 'yuv420p', 
+                '-vcodec', 'h264', 'movie.mp4'
             ]
+            
             print("Attempting to generate movie")
             try:
                 rc = subprocess.run(command, capture_output=True)
@@ -109,10 +117,12 @@ class MovieGen:
                     print(rc.stderr)
                     print("stdout was:")
                     print(rc.stdout)
+                    raise Exception("error generating movie")
             except PermissionError as e:
                 print("Permission error, mencoder path might be incorrect or you are running windows.")
                 print("Please try to run the terminal with admin privileges if mencoder path is correct.")
-            print("Movie generated, file name is 'movie.avi' by default")
+                raise e
+            print("Movie generated, file name is 'movie.mp4' by default")
         # let's go back to where we were
         os.chdir(curr_dir)
 
