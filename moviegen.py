@@ -110,10 +110,9 @@ class MovieGen:
                     print("stdout was:")
                     print(rc.stdout)
             except PermissionError as e:
-                print("Permission error, most likely you are running windows.")
-                print("Please make sure to run the terminal with admin " +
-                    "privilages if you want to generate a movie directly"
-                )
+                print("Permission error, mencoder path might be incorrect or you are running windows.")
+                print("Please try to run the terminal with admin privileges if mencoder path is correct.")
+            print("Movie generated, file name is 'movie.avi' by default")
         # let's go back to where we were
         os.chdir(curr_dir)
 
