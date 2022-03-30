@@ -61,7 +61,7 @@ class MovieGen:
             # instantiate an axis
             ax = plt.gca()
             # get the state you want to plot
-            S = LH.findRibosomes(i/10.)
+            S = LH.get_state(i/10.)
             # plot the state
             P.plot(S, ax=ax)
             # current time

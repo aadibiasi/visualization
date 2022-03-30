@@ -67,7 +67,7 @@ class LogicHandler:
         df = df.set_index("time")
         return df
 
-    def findRibosomes(self,t):
+    def get_state(self,t):
         times = self.firings['time'].to_numpy()
         ind = np.digitize(t,times) - 1
         cur_time = times[ind]
