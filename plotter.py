@@ -1,3 +1,4 @@
+from telnetlib import IP
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
@@ -6,10 +7,28 @@ class Plotter:
         self.options = options
         self.colors = ['red','green','blue','yellow','magenta','cyan','gray','brown']
 
-    def plot(self, state, ax=None):
+    def plot(self, state, ax=None, fig=None):
         ribos = state.ribos
         mrna = state.mrna
-        ax.axhline(y=mrna.y, color='k', linestyle='-', linewidth=3,zorder=5)
+        
+        # plot mrna
+        # get mrna image array
+        with open(mrna.image_path, "rb+") as imfile:
+            mrna_arr_img = plt.imread(imfile)
+        imagebox = OffsetImage(mrna_arr_img, zoom=0.2)
+        imagebox.image.axes = ax
+        
+        ab = AnnotationBbox(imagebox, (38, mrna.y),
+                            xycoords='data',
+                            boxcoords="offset points",
+                            frameon=False,
+                            pad=0.5,
+                            )
+
+        ax.add_artist(ab)
+        # ax.axhline(y=mrna.y, color='k', linestyle='-', linewidth=3,zorder=5)
+        
+        # plot ribosomes 
         # get ribo image array
         ex_ribo = ribos[0]
         with open(ex_ribo.image_path, "rb+") as imfile:

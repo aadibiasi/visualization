@@ -1,7 +1,12 @@
+import os 
+
 class MRNA:
     def __init__(self,y=0.5,max_ribos=100):
         self.y = y
         self.max_ribos = max_ribos
+        self.image_path = os.path.join(*[
+            'C:\\','Users','zhedd','work','visualization','mrna.jpg'
+        ])
 
     @property
     def y(self):

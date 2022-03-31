@@ -78,10 +78,11 @@ class MovieGen:
                 continue
             # instantiate an axis
             ax = plt.gca()
+            fig = plt.gcf()
             # get the state you want to plot
             S = LH.get_state(time)
             # plot the state
-            P.plot(S, ax=ax)
+            P.plot(S, ax=ax, fig=fig)
             # save the current frame
             plt.savefig(f"{itime:05d}.png")
             # close current frame to plot the next one
