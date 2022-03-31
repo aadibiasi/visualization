@@ -86,6 +86,7 @@ class MovieGen:
             plt.savefig(f"{itime:05d}.png")
             # close current frame to plot the next one
             plt.close()
+            # import sys;sys.exit()
         
         # check ffmpeg_path path
         if self.ffmpeg_path is None:
