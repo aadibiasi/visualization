@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import os, subprocess, argparse
 from logicHandler import LogicHandler
 from plotter import Plotter
+import numpy as np
 
 # these are unnecessary for now
 # import matplotlib as mpl
@@ -16,15 +17,15 @@ class MovieGen:
         # TODO: find a better way to do this
         self.input = os.path.abspath(self.args.input)
         self.output = os.path.abspath(self.args.output)
-        self.mencoder_path = os.path.abspath(self.args.mencoder_path)
+        self.ffmpeg_path = os.path.abspath(self.args.ffmpeg_path)
 
     def parse_args(self):
         parser = argparse.ArgumentParser()
 
-        # we need path to mencoder 
-        parser.add_argument('-mp','--mencoder_path', type=str, 
-                            default=os.path.join(*["..","mplayer","mencoder.exe"]),
-                            help='Path to mencoder')
+        # we need path to ffmpeg 
+        parser.add_argument('-ffp','--ffmpeg_path', type=str, 
+                            default=os.path.join(*['C:\\','Program Files','ImageMagick-7.1.0-Q16-HDRI','ffmpeg.exe']),
+                            help='Path to ffmpeg_')
 
         # we need path to data file
         parser.add_argument('-i', '--input', type=str, 
@@ -36,6 +37,16 @@ class MovieGen:
                             default="frames",
                             help='Path to output folder')
 
+        # we need path to output file
+        parser.add_argument('-nf','--number_of_frames', type=int, 
+                            default=1000,
+                            help='Number of frames to output')
+
+        # we need path to output file
+        parser.add_argument('-dt','--delta_t', type=int, 
+                            default=None,
+                            help='Time between frames (this will override number of frames argument)')
+        
         return parser.parse_args()
         
     def run(self):
@@ -52,58 +63,40 @@ class MovieGen:
         # move to our folder
         os.chdir(self.output)
         
+        tmax, tmin = LH.tmax, LH.tmin
+        if self.args.delta_t is None:
+            dt = (tmax - tmin) / self.args.number_of_frames
+        else:
+            dt = self.args.delta_t
         # TODO: we need to determine this from the data
         print("Generating frames")
-        for i in range(1,1011,1):
+        for itime, time in enumerate(np.arange(tmin,tmax,dt)):
             # TODO: we should probably report the progress here with a progress bar
             #print("###")
             #print(f"current time: {i/100.}")
-            if os.path.exists(f"{i:05d}.png"):
+            if os.path.exists(f"{itime:05d}.png"):
                 continue
             # instantiate an axis
             ax = plt.gca()
             # get the state you want to plot
-            S = LH.get_state(i/10.)
+            S = LH.get_state(time)
             # plot the state
             P.plot(S, ax=ax)
-            # current time
-            plt.text(70,0.9,f'time: {i/10} seconds')
-            # vertical ticks for each ribosome spot
-            # for x in range(0,101,1):
-            #     plt.axvline(x,ymin=0.49,ymax=0.51,color='black',zorder=0)
-            # sets x/y limits
-            plt.ylim([0,1])
-            plt.xlim([0,100])
-            # removes axis lines
-            ax.axes.yaxis.set_visible(False)
-            ax.axes.xaxis.set_visible(False)
             # save the current frame
-            plt.savefig(f"{i:05d}.png")
+            plt.savefig(f"{itime:05d}.png")
             # close current frame to plot the next one
             plt.close()
         
-        # check mencoder path
-        if self.mencoder_path is None:
-            print("Please provide path to mencoder if you " + 
+        # check ffmpeg_path path
+        if self.ffmpeg_path is None:
+            print("Please provide path to ffmpeg if you " + 
                 "want to generate a movie."
             )
         else:
             # generate a movie
-            
-            # sample command to run
-            # ..\..\mplayer\mencoder.exe "mf://*.png" 
-            # -mf fps=60:type=png -ovc lavc -lavcopts 
-            # vcodec=mpeg4:mbd=2:trell:vbitrate=7000 
-            # -vf scale=1024:768 -oac copy -o movie.avi
-            
-            # make our command list for subprocess
-            # command = [self.mencoder_path, 'mf://*.png', 
-            #     '-mf', 'fps=60:type=png', '-ovc', 'lavc', 
-            #     '-lavcopts', 'vcodec=mpeg4:mbd=2:trell:vbitrate=7000', 
-            #     '-oac', 'copy', '-o', 'movie.avi'
-            # ]
+            # ffmpeg command to generate a movie compatible with quick time
             command = [
-                os.path.join(*['C:\\','Program Files','ImageMagick-7.1.0-Q16-HDRI','ffmpeg.exe']),
+                self.ffmpeg_path,
                 '-i', '%05d.png', '-f', 'mp4', '-pix_fmt', 'yuv420p', 
                 '-vcodec', 'h264', 'movie.mp4'
             ]
@@ -119,7 +112,7 @@ class MovieGen:
                     print(rc.stdout)
                     raise Exception("error generating movie")
             except PermissionError as e:
-                print("Permission error, mencoder path might be incorrect or you are running windows.")
+                print("Permission error, ffmpeg path might be incorrect or you are running windows.")
                 print("Please try to run the terminal with admin privileges if mencoder path is correct.")
                 raise e
             print("Movie generated, file name is 'movie.mp4' by default")

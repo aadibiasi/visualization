@@ -1,4 +1,4 @@
-from telnetlib import IP
+from platform import system_alias
 import pandas as pd
 import numpy as np
 from state import State
@@ -8,6 +8,7 @@ class LogicHandler:
     def __init__(self,tsvFileName = ""):
         self.tsv = tsvFileName
         self.firings = self.genFirings()
+        self.tmax, self.tmin = self.firings['time'].max(), self.firings['time'].min()
         self.numRibosomes = self.firings['rxn'].value_counts().initiate
         self.ribosomePos = self.genPositions()
 
@@ -72,4 +73,4 @@ class LogicHandler:
         ind = np.digitize(t,times) - 1
         cur_time = times[ind]
         # import IPython,sys;IPython.embed();sys.exit()
-        return State(self.ribosomePos.loc[cur_time])
+        return State(self.ribosomePos.loc[cur_time],t)
