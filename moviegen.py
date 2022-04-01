@@ -1,8 +1,12 @@
 import matplotlib.pyplot as plt
 import os, subprocess, argparse
+from alive_progress import alive_bar
+import numpy as np
+
 from logicHandler import LogicHandler
 from plotter import Plotter
-import numpy as np
+
+
 
 # these are unnecessary for now
 # import matplotlib as mpl
@@ -69,26 +73,29 @@ class MovieGen:
         else:
             dt = self.args.delta_t
         print("Generating frames")
-        for itime, time in enumerate(np.arange(tmin,tmax,dt)):
-            # TODO: we should probably report the progress here with a progress bar
-            #print("###")
-            #print(f"current time: {i/100.}")
-            # TODO: This shouldn't be here once development is done
-            if os.path.exists(f"{itime:05d}.png"):
-                continue
-            # instantiate an axis
-            ax = plt.gca()
-            fig = plt.gcf()
-            # get the state you want to plot
-            S = LH.get_state(time)
-            # plot the state
-            P.plot(S, ax=ax, fig=fig)
-            # save the current frame
-            plt.savefig(f"{itime:05d}.png")
-            # close current frame to plot the next one
-            plt.close()
-            # import sys;sys.exit()
-        
+        final_num_frames = len(np.arange(tmin, tmax, dt))
+        with alive_bar(final_num_frames) as bar:
+            for itime, time in enumerate(np.arange(tmin,tmax,dt)):
+                # TODO: we should probably report the progress here with a progress bar
+                #print("###")
+                #print(f"current time: {i/100.}")
+                # TODO: This shouldn't be here once development is done
+                if os.path.exists(f"{itime:05d}.png"):
+                    continue
+                # instantiate an axis
+                ax = plt.gca()
+                fig = plt.gcf()
+                # get the state you want to plot
+                S = LH.get_state(time)
+                # plot the state
+                P.plot(S, ax=ax, fig=fig)
+                # save the current frame
+                plt.savefig(f"{itime:05d}.png")
+                # close current frame to plot the next one
+                plt.close()
+                # import sys;sys.exit()
+                bar()
+            
         # check ffmpeg_path path
         if self.ffmpeg_path is None:
             print("Please provide path to ffmpeg if you " + 
