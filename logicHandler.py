@@ -72,5 +72,4 @@ class LogicHandler:
         times = self.firings['time'].to_numpy()
         ind = np.digitize(t,times) - 1
         cur_time = times[ind]
-        # import IPython,sys;IPython.embed();sys.exit()
         return State(self.ribosomePos.loc[cur_time],t)

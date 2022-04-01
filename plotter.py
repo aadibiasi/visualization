@@ -1,4 +1,3 @@
-from telnetlib import IP
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
@@ -30,8 +29,7 @@ class Plotter:
         
         # plot ribosomes 
         # get ribo image array
-        ex_ribo = ribos[0]
-        with open(ex_ribo.image_path, "rb+") as imfile:
+        with open(ribos[0].image_path, "rb+") as imfile:
             arr_img = plt.imread(imfile)
         # put each ribosome image on the plot
         for iribo,ribo in enumerate(ribos):
@@ -64,6 +62,3 @@ class Plotter:
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
         ax.spines['bottom'].set_visible(False)
-
-
-        # Annotate the 2nd position with another image (a Grace Hopper portrait)

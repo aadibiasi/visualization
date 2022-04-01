@@ -25,7 +25,7 @@ class MovieGen:
         # we need path to ffmpeg 
         parser.add_argument('-ffp','--ffmpeg_path', type=str, 
                             default=os.path.join(*['C:\\','Program Files','ImageMagick-7.1.0-Q16-HDRI','ffmpeg.exe']),
-                            help='Path to ffmpeg_')
+                            help='Path to ffmpeg')
 
         # we need path to data file
         parser.add_argument('-i', '--input', type=str, 
@@ -68,12 +68,12 @@ class MovieGen:
             dt = (tmax - tmin) / self.args.number_of_frames
         else:
             dt = self.args.delta_t
-        # TODO: we need to determine this from the data
         print("Generating frames")
         for itime, time in enumerate(np.arange(tmin,tmax,dt)):
             # TODO: we should probably report the progress here with a progress bar
             #print("###")
             #print(f"current time: {i/100.}")
+            # TODO: This shouldn't be here once development is done
             if os.path.exists(f"{itime:05d}.png"):
                 continue
             # instantiate an axis
