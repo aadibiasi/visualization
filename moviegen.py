@@ -1,12 +1,10 @@
 import matplotlib.pyplot as plt
-import os, subprocess, argparse
+import os, subprocess, argparse, shutil
 from alive_progress import alive_bar
 import numpy as np
 
 from logicHandler import LogicHandler
 from plotter import Plotter
-
-
 
 # these are unnecessary for now
 # import matplotlib as mpl
@@ -76,12 +74,6 @@ class MovieGen:
         final_num_frames = len(np.arange(tmin, tmax, dt))
         with alive_bar(final_num_frames) as bar:
             for itime, time in enumerate(np.arange(tmin,tmax,dt)):
-                # TODO: we should probably report the progress here with a progress bar
-                #print("###")
-                #print(f"current time: {i/100.}")
-                # TODO: This shouldn't be here once development is done
-                if os.path.exists(f"{itime:05d}.png"):
-                    continue
                 # instantiate an axis
                 ax = plt.gca()
                 fig = plt.gcf()
@@ -93,7 +85,7 @@ class MovieGen:
                 plt.savefig(f"{itime:05d}.png")
                 # close current frame to plot the next one
                 plt.close()
-                # import sys;sys.exit()
+                # advance the bar
                 bar()
             
         # check ffmpeg_path path
@@ -110,6 +102,9 @@ class MovieGen:
                 '-vcodec', 'h264', 'movie.mp4'
             ]
             
+            if os.path.exists("movie.mp4"):
+                os.remove("movie.mp4")
+            
             print("Attempting to generate movie")
             try:
                 rc = subprocess.run(command, capture_output=True)
@@ -125,6 +120,7 @@ class MovieGen:
                 print("Please try to run the terminal with admin privileges if mencoder path is correct.")
                 raise e
             print("Movie generated, file name is 'movie.mp4' by default")
+            shutil.move("movie.mp4", os.path.join(curr_dir,"movie.mp4"))
         # let's go back to where we were
         os.chdir(curr_dir)
 
