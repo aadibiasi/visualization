@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="424.51068mm"
+   height="13.384397mm"
+   viewBox="0 0 424.51068 13.384397"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1.2 (b8e25be833, 2022-02-05)"
+   sodipodi:docname="mrnapurple.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="true"
+     inkscape:snap-center="true"
+     inkscape:snap-grids="true"
+     inkscape:zoom="1.42"
+     inkscape:cx="278.52113"
+     inkscape:cy="95.422535"
+     inkscape:window-width="1920"
+     inkscape:window-height="1010"
+     inkscape:window-x="-7"
+     inkscape:window-y="-7"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0">
+    <inkscape:grid
+       type="xygrid"
+       id="grid149"
+       originx="-20.578029"
+       originy="78.129704" />
+  </sodipodi:namedview>
+  <defs
+     id="defs2">
+    <inkscape:path-effect
+       effect="bspline"
+       id="path-effect577"
+       is_visible="true"
+       lpeversion="1"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false" />
+    <inkscape:path-effect
+       effect="spiro"
+       id="path-effect114"
+       is_visible="true"
+       lpeversion="1" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-20.578,78.129699)">
+    <path
+       style="fill:#ff00ff;fill-opacity:0;stroke:#e300ed;stroke-width:1.665;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 21.166666,-71.437499 c 0,0 13.229167,-13.229167 26.458333,0 13.229167,13.229166 26.458333,0 26.458333,0 0,0 13.229167,-13.229167 26.458338,0 13.22916,13.229166 26.45833,0 26.45833,0"
+       id="path880" />
+    <path
+       style="fill:#ff00ff;fill-opacity:0;stroke:#e300ed;stroke-width:1.665;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 127,-71.4375 c 0,0 13.22917,-13.229167 26.45833,0 13.22917,13.229166 26.45833,0 26.45833,0 0,0 13.22917,-13.229167 26.45834,0 13.22916,13.229166 26.45833,0 26.45833,0"
+       id="path880-3" />
+    <path
+       style="fill:#ff00ff;fill-opacity:0;stroke:#e300ed;stroke-width:1.665;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 232.83333,-71.4375 c 0,0 13.22917,-13.229167 26.45834,0 13.22916,13.229166 26.45833,0 26.45833,0 0,0 13.22917,-13.229167 26.45834,0 13.22916,13.229166 26.45833,0 26.45833,0"
+       id="path880-0" />
+    <path
+       style="fill:#ff00ff;fill-opacity:0;stroke:#e300ed;stroke-width:1.665;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 338.66667,-71.437501 c 0,0 13.22917,-13.229167 26.45833,0 13.22917,13.229166 26.45833,0 26.45833,0 0,0 13.22917,-13.229167 26.45834,0 13.22916,13.229166 26.45833,0 26.45833,0"
+       id="path880-3-7" />
+  </g>
+</svg>
