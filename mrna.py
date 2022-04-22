@@ -5,7 +5,7 @@ class MRNA:
         self.y = y
         self.max_ribos = max_ribos
         self.image_path = os.path.join(*[
-            'C:\\','Users','zhedd','work','visualization','mrna.jpg'
+            'C:\\','Users','Akhlore','visualization','mrna.jpg'
         ])
 
     @property

@@ -36,7 +36,7 @@ class Plotter:
         for iribo,ribo in enumerate(ribos):
             if ribo.pos != -1:
                 # make the imagebox
-                imagebox = OffsetImage(arr_img, zoom=0.05)
+                imagebox = OffsetImage(arr_img, zoom=0.011)
                 imagebox.image.axes = ax
                 # make the annotation box
                 ab = AnnotationBbox(imagebox, (ribo.pos, mrna.y), frameon=False)

@@ -26,7 +26,7 @@ class MovieGen:
 
         # we need path to ffmpeg 
         parser.add_argument('-ffp','--ffmpeg_path', type=str, 
-                            default=os.path.join(*['C:\\','Program Files','ImageMagick-7.1.0-Q16-HDRI','ffmpeg.exe']),
+                            default=os.path.join(*['D:\\','ImageMagick-7.1.0-Q16-HDRI','ffmpeg.exe']),
                             help='Path to ffmpeg')
 
         # we need path to data file
