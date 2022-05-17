@@ -10,34 +10,42 @@ class State:
         self.ssus = s
         self.lsus = l
 
-        @property
-        def time(self):
-            return self._time
+    def __str__(self):
+        print(f'State at time: {self.time}')
+        print(f'SSUs: {self.ssus}')
+        print(f'LSUs: {self.lsus}')
 
-        @time.setter
-        def time(self,t):
-            self._time = t
+    def __repr__(self):
+        return str(self)
 
-        @property
-        def mrna(self):
-            return self._mrna
+    @property
+    def time(self):
+        return self._time
 
-        @mrna.setter
-        def mrna(self, newMRNA):
-            self._mrna = newMRNA
+    @time.setter
+    def time(self,t):
+        self._time = t
 
-        @property
-        def ssus(self):
-            return self._ssus
+    @property
+    def mrna(self):
+        return self._mrna
 
-        @ssus.setter
-        def ssus(self, newSSUs):
-            self._ssus = newSSUs
+    @mrna.setter
+    def mrna(self, newMRNA):
+        self._mrna = newMRNA
 
-        @property
-        def lsus(self):
-            return self._lsus
+    @property
+    def ssus(self):
+        return self._ssus
 
-        @lsus.setter
-        def lsus(self, newLSUs):
-            self._lsus = newLSUs
+    @ssus.setter
+    def ssus(self, newSSUs):
+        self._ssus = newSSUs
+
+    @property
+    def lsus(self):
+        return self._lsus
+
+    @lsus.setter
+    def lsus(self, newLSUs):
+        self._lsus = newLSUs

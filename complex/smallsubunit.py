@@ -10,26 +10,29 @@ class SSU:
             'C:\\','Users','alexd','Documents','faeder','complex','40s_blue.jpg'
         ])
 
-        @property
-        def xpos(self):
-            return self._xpos
+    def __eq__(self,obj):
+        return self.xpos == obj.xpos and self.ypos == obj.ypos and self.tcsite == obj.tcsite
 
-        @xpos.setter
-        def xpos(self,value):
-            self._xpos = value
+    @property
+    def xpos(self):
+        return self._xpos
 
-        @property
-        def ypos(self):
-            return self._ypos
+    @xpos.setter
+    def xpos(self,value):
+        self._xpos = value
 
-        @ypos.setter
-        def ypos(self,value):
-            self._ypos = value
+    @property
+    def ypos(self):
+        return self._ypos
 
-        @property
-        def tcsite(self):
-            return self._tcsite
+    @ypos.setter
+    def ypos(self,value):
+        self._ypos = value
 
-        @tcsite.setter
-        def tcsite(self,value):
-            self._tcsite = value
+    @property
+    def tcsite(self):
+        return self._tcsite
+
+    @tcsite.setter
+    def tcsite(self,value):
+        self._tcsite = value

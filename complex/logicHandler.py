@@ -1,4 +1,4 @@
-from platform import system_alias
+import copy as cp
 import pandas as pd
 import numpy as np
 from state import State
@@ -35,17 +35,17 @@ class LogicHandler:
 
     @states.setter
     def states(self, newStates):
-        self.__states = newStates
+        self._states = newStates
 
     def genFirings(self):
-        return pd.read_csv(self._tsv,sep='\t')
+        return pd.read_csv(self.tsv,sep='\t')
 
     def genStates(self):
         stateList = []
         stateList.append(State())
         for i in self.firings.index:
-            prevSSUs = stateList[i].ssus
-            prevLSUs = stateList[i].lsus
+            prevSSUs = cp.copy(stateList[i].ssus)
+            prevLSUs = cp.copy(stateList[i].lsus)
             time = self.firings['time'][i]
             rxnType = self.firings['rxn'][i]
 
@@ -53,6 +53,7 @@ class LogicHandler:
             if(rxnType == 'bind_tc_free_ssu'):
                 prevSSUs.append(SSU(x=0,y=0.25,tc=1))
                 stateList.append(State(time,prevSSUs,prevLSUs))
+                continue
 
             #bind_cap_pic_0
             if(rxnType == 'bind_cap_pic_0'):
@@ -60,6 +61,7 @@ class LogicHandler:
                 newSSU = SSU(x=0,y=0.5,tc=1)
                 stateList.remove(prevSSU)
                 stateList.append(newSSU)
+                continue
 
             rxnSpl = rxnType.split('_')
             pos = int(rxnSpl[len(rxnSpl)-1])
@@ -70,6 +72,9 @@ class LogicHandler:
 
             #backward_scan
 
-            #scan_to_elon
+            #scan_to_elongate
 
             #elongate
+
+if __name__ == '__main__':
+    LH = LogicHandler('model.tsv')

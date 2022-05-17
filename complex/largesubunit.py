@@ -9,18 +9,18 @@ class LSU:
             'C:\\','Users','alexd','Documents','faeder','complex','60s_green.jpg'
         ])
 
-        @property
-        def xpos(self):
-            return self._xpos
+    @property
+    def xpos(self):
+        return self._xpos
 
-        @xpos.setter
-        def xpos(self,value):
-            self._xpos = value
+    @xpos.setter
+    def xpos(self,value):
+        self._xpos = value
 
-        @property
-        def ypos(self):
-            return self._ypos
+    @property
+    def ypos(self):
+        return self._ypos
 
-        @ypos.setter
-        def ypos(self,value):
-            self._ypos = value
+    @ypos.setter
+    def ypos(self,value):
+        self._ypos = value
