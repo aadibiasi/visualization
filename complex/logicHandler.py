@@ -70,6 +70,6 @@ class LogicHandler:
 
             #backward_scan
 
-            #scan_to_elongate
+            #scan_to_elon
 
             #elongate
