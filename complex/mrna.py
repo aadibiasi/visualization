@@ -5,7 +5,7 @@ class MRNA:
     def __init__(self,yinit=0.5):
         self.y = yinit
         self.image_path = os.path.join(*[
-            'C:\\','Users','alexd','Documents','faeder','complex','mrna.jpg'
+            'C:\\','Users','Akhlore','visualization','complex','mrna.jpg'
         ])
 
     @property

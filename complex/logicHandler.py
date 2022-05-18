@@ -12,6 +12,7 @@ class LogicHandler:
         self.tsv = tsvFileName
         self.firings = self.genFirings()
         self.states = self.genStates()
+        self.tmax, self.tmin = self.firings['time'].max(), self.firings['time'].min()
 
     @property
     def tsv(self):
@@ -42,12 +43,16 @@ class LogicHandler:
 
     def genStates(self):
         initialSSUs = 100 * [SSU(x=-1,y=0.5,tc=0)]
-        initialLSUs = 100 * [SSU(x=-1,y=0.5)]
+        initialLSUs = 100 * [LSU(x=-1,y=0.5)]
         stateList = [State(0,initialSSUs,initialLSUs)]
 
         for i in self.firings.index:
-            prevSSUs = cp.copy(stateList[i].ssus)
-            prevLSUs = cp.copy(stateList[i].lsus)
+            try:
+                prevSSUs = cp.copy(stateList[i].ssus)
+                prevLSUs = cp.copy(stateList[i].lsus)
+            except IndexError:
+                print("couldn't parse a reaction, quitting")
+                break
             time = self.firings['time'][i]
             rxnType = self.firings['rxn'][i]
 
@@ -87,23 +92,29 @@ class LogicHandler:
             if rxnType == f'scan_to_elongate_{prevPosStr}':
                 prevSSUs.remove(SSU(x=prevPos,y=0.5,tc=1))
                 prevLSUs.remove(LSU(x=-1,y=0.5))
-                prevSSUs.append(SSU(x=prevPos,y=0.6,tc=0))
-                prevLSUs.append(LSU(x=prevPos,y=0.4))
+                prevSSUs.append(SSU(x=prevPos,y=0.535,tc=0))
+                prevLSUs.append(LSU(x=prevPos,y=0.45))
                 stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
 
             #elongate
             if rxnType == f'elongate_{prevPosStr}':
-                prevSSUs.remove(SSU(x=prevPos,y=0.6,tc=0))
-                prevLSUs.remove(LSU(x=prevPos,y=0.4))
-                prevSSUs.append(SSU(x=prevPos+3,y=0.6,tc=0))
-                prevLSUs.append(LSU(x=prevPos+3,y=0.4))
+                prevSSUs.remove(SSU(x=prevPos,y=0.535,tc=0))
+                prevLSUs.remove(LSU(x=prevPos,y=0.45))
+                prevSSUs.append(SSU(x=prevPos+3,y=0.535,tc=0))
+                prevLSUs.append(LSU(x=prevPos+3,y=0.45))
                 stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
 
             #TODO terminate and recycling
 
         return stateList
+    
+    def get_state(self,t):
+        times = self.firings['time'].to_numpy()
+        ind = np.digitize(t,times)
+        state_ind = ind-1 if (t - times[ind-1]) < times[ind] - t else ind
+        return self.states[state_ind]
 
 if __name__ == '__main__':
     LH = LogicHandler('test.tsv')
