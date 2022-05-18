@@ -41,7 +41,9 @@ class LogicHandler:
         return pd.read_csv(self.tsv,sep='\t')
 
     def genStates(self):
-        stateList = [State()]
+        initialSSUs = 100 * [SSU(x=-1,y=0.5,tc=0)]
+        initialLSUs = 100 * [SSU(x=-1,y=0.5)]
+        stateList = [State(0,initialSSUs,initialLSUs)]
 
         for i in self.firings.index:
             prevSSUs = cp.copy(stateList[i].ssus)
@@ -51,6 +53,7 @@ class LogicHandler:
 
             #bind_tc_free_ssu
             if rxnType == 'bind_tc_free_ssu':
+                prevSSUs.remove(SSU(x=-1,y=0.5,tc=0))
                 prevSSUs.append(SSU(x=-1,y=0.5,tc=1))
                 stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
@@ -63,32 +66,34 @@ class LogicHandler:
                 continue
             
             rxnSpl = rxnType.split('_')
-            prevPos = int(rxnSpl[len(rxnSpl)-1])
+            prevPos = int(rxnSpl[-1])
+            prevPosStr = rxnSpl[-1]
 
             #scan
-            if len(rxnSpl) == 2 and rxnSpl[0] == 'scan':
+            if rxnType == f'scan_{prevPosStr}':
                 prevSSUs.remove(SSU(x=prevPos,y=0.5,tc=1))
                 prevSSUs.append(SSU(x=prevPos+1,y=0.5,tc=1))
                 stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
 
             #backward_scan
-            if len(rxnSpl) == 3 and rxnSpl[0] == 'backward':
+            if rxnType == f'backward_scan_{prevPosStr}':
                 prevSSUs.remove(SSU(x=prevPos,y=0.5,tc=1))
                 prevSSUs.append(SSU(x=prevPos-1,y=0.5,tc=1))
                 stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
 
             #scan_to_elongate
-            if len(rxnSpl) == 4 and rxnSpl[0] == 'scan':
+            if rxnType == f'scan_to_elongate_{prevPosStr}':
                 prevSSUs.remove(SSU(x=prevPos,y=0.5,tc=1))
+                prevLSUs.remove(LSU(x=-1,y=0.5))
                 prevSSUs.append(SSU(x=prevPos,y=0.6,tc=0))
                 prevLSUs.append(LSU(x=prevPos,y=0.4))
                 stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
 
             #elongate
-            if len(rxnSpl) == 2 and rxnSpl[0] == 'elongate':
+            if rxnType == f'elongate_{prevPosStr}':
                 prevSSUs.remove(SSU(x=prevPos,y=0.6,tc=0))
                 prevLSUs.remove(LSU(x=prevPos,y=0.4))
                 prevSSUs.append(SSU(x=prevPos+3,y=0.6,tc=0))
@@ -96,9 +101,13 @@ class LogicHandler:
                 stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
 
+            #TODO terminate and recycling
+
         return stateList
 
 if __name__ == '__main__':
     LH = LogicHandler('test.tsv')
-    for i in LH.states:
-        print(i)
+    
+    #This kinda blows up the terminal because it lists all 100 SSUs and LSUs for every state
+    #for i in LH.states:
+    #    print(i)

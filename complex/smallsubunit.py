@@ -17,7 +17,7 @@ class SSU:
         return str(self)
 
     def __eq__(self,obj):
-        return self.xpos == obj.xpos and self.ypos == obj.ypos and self.tcsite == obj.tcsite
+        return self.xpos == obj.xpos and self.ypos == obj.ypos #and self.tcsite == obj.tcsite
 
     @property
     def xpos(self):
