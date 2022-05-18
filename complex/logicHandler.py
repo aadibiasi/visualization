@@ -100,3 +100,5 @@ class LogicHandler:
 
 if __name__ == '__main__':
     LH = LogicHandler('test.tsv')
+    for i in LH.states:
+        print(i)

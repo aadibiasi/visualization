@@ -11,7 +11,7 @@ class SSU:
         ])
 
     def __str__(self):
-        print(f'POS:{self.xpos} TC:{self.tcsite}')
+        return f'POS:{self.xpos} TC:{self.tcsite}'
 
     def __repr__(self):
         return str(self)
