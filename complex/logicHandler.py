@@ -42,7 +42,13 @@ class LogicHandler:
         return pd.read_csv(self.tsv,sep='\t')
 
     def genStates(self):
+        ssu_y_base = 0.5
+        ssu_y_up = 0.565
+        lsu_y_base = 0.5
+        lsu_y_down = 0.45
+
         initialSSUs = 100 * [SSU(x=-1,y=0.5,tc=0)]
+        # initialSSUs += [SSU(x=200,y=0.5,tc=0),SSU(x=230,y=0.5,tc=0)]
         initialLSUs = 100 * [LSU(x=-1,y=0.5)]
         stateList = [State(0,initialSSUs,initialLSUs)]
 
@@ -58,15 +64,15 @@ class LogicHandler:
 
             #bind_tc_free_ssu
             if rxnType == 'bind_tc_free_ssu':
-                prevSSUs.remove(SSU(x=-1,y=0.5,tc=0))
-                prevSSUs.append(SSU(x=-1,y=0.5,tc=1))
+                prevSSUs.remove(SSU(x=-1,y=ssu_y_base,tc=0))
+                prevSSUs.append(SSU(x=-1,y=ssu_y_base,tc=1))
                 stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
 
             #bind_cap_pic_0
             if rxnType == 'bind_cap_pic_0':
-                prevSSUs.remove(SSU(x=-1,y=0.5,tc=1))
-                prevSSUs.append(SSU(x=0,y=0.5,tc=1))
+                prevSSUs.remove(SSU(x=-1,y=ssu_y_base,tc=1))
+                prevSSUs.append(SSU(x=0,y=ssu_y_base,tc=1))
                 stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
             
@@ -76,33 +82,33 @@ class LogicHandler:
 
             #scan
             if rxnType == f'scan_{prevPosStr}':
-                prevSSUs.remove(SSU(x=prevPos,y=0.5,tc=1))
-                prevSSUs.append(SSU(x=prevPos+1,y=0.5,tc=1))
+                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base,tc=1))
+                prevSSUs.append(SSU(x=prevPos+1,y=ssu_y_base,tc=1))
                 stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
 
             #backward_scan
             if rxnType == f'backward_scan_{prevPosStr}':
-                prevSSUs.remove(SSU(x=prevPos,y=0.5,tc=1))
-                prevSSUs.append(SSU(x=prevPos-1,y=0.5,tc=1))
+                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base,tc=1))
+                prevSSUs.append(SSU(x=prevPos-1,y=ssu_y_base,tc=1))
                 stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
 
             #scan_to_elongate
             if rxnType == f'scan_to_elongate_{prevPosStr}':
-                prevSSUs.remove(SSU(x=prevPos,y=0.5,tc=1))
-                prevLSUs.remove(LSU(x=-1,y=0.5))
-                prevSSUs.append(SSU(x=prevPos,y=0.535,tc=0))
-                prevLSUs.append(LSU(x=prevPos,y=0.45))
+                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base,tc=1))
+                prevLSUs.remove(LSU(x=-1,y=ssu_y_base))
+                prevSSUs.append(SSU(x=prevPos,y=ssu_y_up,tc=0))
+                prevLSUs.append(LSU(x=prevPos,y=lsu_y_down))
                 stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
 
             #elongate
             if rxnType == f'elongate_{prevPosStr}':
-                prevSSUs.remove(SSU(x=prevPos,y=0.535,tc=0))
-                prevLSUs.remove(LSU(x=prevPos,y=0.45))
-                prevSSUs.append(SSU(x=prevPos+3,y=0.535,tc=0))
-                prevLSUs.append(LSU(x=prevPos+3,y=0.45))
+                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_up,tc=0))
+                prevLSUs.remove(LSU(x=prevPos,y=lsu_y_down))
+                prevSSUs.append(SSU(x=prevPos+3,y=ssu_y_up,tc=0))
+                prevLSUs.append(LSU(x=prevPos+3,y=lsu_y_down))
                 stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
 
