@@ -10,6 +10,12 @@ class SSU:
             'C:\\','Users','alexd','Documents','faeder','complex','40s_blue.jpg'
         ])
 
+    def __str__(self):
+        print(f'POS:{self.xpos} TC:{self.tcsite}')
+
+    def __repr__(self):
+        return str(self)
+
     def __eq__(self,obj):
         return self.xpos == obj.xpos and self.ypos == obj.ypos and self.tcsite == obj.tcsite
 

@@ -9,6 +9,15 @@ class LSU:
             'C:\\','Users','alexd','Documents','faeder','complex','60s_green.jpg'
         ])
 
+    def __str__(self):
+        print(f'POS:{self.xpos} ')
+
+    def __repr__(self):
+        return str(self)
+
+    def __eq__(self,obj):
+        return self.xpos == obj.xpos and self.ypos == obj.ypos
+
     @property
     def xpos(self):
         return self._xpos

@@ -11,9 +11,7 @@ class State:
         self.lsus = l
 
     def __str__(self):
-        print(f'State at time: {self.time}')
-        print(f'SSUs: {self.ssus}')
-        print(f'LSUs: {self.lsus}')
+        return f'Time: {self.time}\nSSUs: {self.ssus}\nLSUs: {self.lsus}'
 
     def __repr__(self):
         return str(self)

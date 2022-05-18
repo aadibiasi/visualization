@@ -41,8 +41,8 @@ class LogicHandler:
         return pd.read_csv(self.tsv,sep='\t')
 
     def genStates(self):
-        stateList = []
-        stateList.append(State())
+        stateList = [State()]
+
         for i in self.firings.index:
             prevSSUs = cp.copy(stateList[i].ssus)
             prevLSUs = cp.copy(stateList[i].lsus)
@@ -50,31 +50,53 @@ class LogicHandler:
             rxnType = self.firings['rxn'][i]
 
             #bind_tc_free_ssu
-            if(rxnType == 'bind_tc_free_ssu'):
-                prevSSUs.append(SSU(x=0,y=0.25,tc=1))
+            if rxnType == 'bind_tc_free_ssu':
+                prevSSUs.append(SSU(x=-1,y=0.5,tc=1))
                 stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
 
             #bind_cap_pic_0
-            if(rxnType == 'bind_cap_pic_0'):
-                prevSSU = SSU(x=-1,y=0.25,tc=1)
-                newSSU = SSU(x=0,y=0.5,tc=1)
-                stateList.remove(prevSSU)
-                stateList.append(newSSU)
+            if rxnType == 'bind_cap_pic_0':
+                prevSSUs.remove(SSU(x=-1,y=0.5,tc=1))
+                prevSSUs.append(SSU(x=0,y=0.5,tc=1))
+                stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
-
+            
             rxnSpl = rxnType.split('_')
-            pos = int(rxnSpl[len(rxnSpl)-1])
+            prevPos = int(rxnSpl[len(rxnSpl)-1])
 
             #scan
             if len(rxnSpl) == 2 and rxnSpl[0] == 'scan':
-                prevSSU = SSU(x=pos-1)
+                prevSSUs.remove(SSU(x=prevPos,y=0.5,tc=1))
+                prevSSUs.append(SSU(x=prevPos+1,y=0.5,tc=1))
+                stateList.append(State(time,prevSSUs,prevLSUs))
+                continue
 
             #backward_scan
+            if len(rxnSpl) == 3 and rxnSpl[0] == 'backward':
+                prevSSUs.remove(SSU(x=prevPos,y=0.5,tc=1))
+                prevSSUs.append(SSU(x=prevPos-1,y=0.5,tc=1))
+                stateList.append(State(time,prevSSUs,prevLSUs))
+                continue
 
             #scan_to_elongate
+            if len(rxnSpl) == 4 and rxnSpl[0] == 'scan':
+                prevSSUs.remove(SSU(x=prevPos,y=0.5,tc=1))
+                prevSSUs.append(SSU(x=prevPos,y=0.6,tc=0))
+                prevLSUs.append(LSU(x=prevPos,y=0.4))
+                stateList.append(State(time,prevSSUs,prevLSUs))
+                continue
 
             #elongate
+            if len(rxnSpl) == 2 and rxnSpl[0] == 'elongate':
+                prevSSUs.remove(SSU(x=prevPos,y=0.6,tc=0))
+                prevLSUs.remove(LSU(x=prevPos,y=0.4))
+                prevSSUs.append(SSU(x=prevPos+3,y=0.6,tc=0))
+                prevLSUs.append(LSU(x=prevPos+3,y=0.4))
+                stateList.append(State(time,prevSSUs,prevLSUs))
+                continue
+
+        return stateList
 
 if __name__ == '__main__':
-    LH = LogicHandler('model.tsv')
+    LH = LogicHandler('test.tsv')
