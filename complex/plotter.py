@@ -20,10 +20,10 @@ class Plotter:
         with open(mrna.image_path, "rb+") as imfile:
             mrna_arr_img = plt.imread(imfile)
         # make an image box
-        imagebox = OffsetImage(mrna_arr_img, zoom=0.20)
+        imagebox = OffsetImage(mrna_arr_img, zoom=0.145)
         imagebox.image.axes = ax
         # make the annotation box
-        ab = AnnotationBbox(imagebox, ((mrna.xlen/2.0)-2, mrna.y), frameon=False)
+        ab = AnnotationBbox(imagebox, ((mrna.xlen/2.0)-5, mrna.y), frameon=False)
         # add annotation box to the plot
         ax.add_artist(ab)
         # plotting for lines and dots

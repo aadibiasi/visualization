@@ -6,7 +6,7 @@ class MRNA:
         self.xlen = 278
         self.y = yinit
         self.image_path = os.path.join(*[
-            'C:\\','Users','Akhlore','visualization','complex','mrna.jpg'
+            'C:\\','Users','alexd','Documents','faeder','visualization','complex','mrnared.png'
         ])
 
     @property
