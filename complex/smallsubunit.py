@@ -7,7 +7,7 @@ class SSU:
         self.ypos = y
         self.tcsite = tc
         self.image_path = os.path.join(*[
-            'C:\\','Users','Akhlore','visualization','complex','40s_blue.jpg'
+            'C:\\','Users','alexd','Documents','faeder','visualization','complex','40s_blue100.png'
         ])
 
     def __str__(self):

@@ -72,10 +72,11 @@ class MovieGen:
             dt = self.args.delta_t
         print("Generating frames")
         final_num_frames = len(np.arange(tmin, tmax, dt))
-        plt.figure(dpi=600)
+        #plt.figure(dpi=600,figsize=(8,6))
         # import IPython;IPython.embed()
         with alive_bar(final_num_frames) as bar:
             for itime, time in enumerate(np.arange(tmin,tmax,dt)):
+                plt.figure(dpi=600,figsize=(6.4,3))
                 # instantiate an axis
                 ax = plt.gca()
                 fig = plt.gcf()

@@ -48,8 +48,9 @@ class LogicHandler:
         lsu_y_down = 0.45
 
         initialSSUs = 100 * [SSU(x=-1,y=0.5,tc=0)]
-        # initialSSUs += [SSU(x=200,y=0.5,tc=0),SSU(x=230,y=0.5,tc=0)]
+        #initialSSUs += [SSU(x=200,y=0.5,tc=0),SSU(x=230,y=0.5,tc=0)]
         initialLSUs = 100 * [LSU(x=-1,y=0.5)]
+        #initialLSUs += [LSU(x=200,y=0.4),LSU(x=230,y=0.4)]
         stateList = [State(0,initialSSUs,initialLSUs)]
 
         for i in self.firings.index:

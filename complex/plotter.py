@@ -37,7 +37,7 @@ class Plotter:
         for issu,ssu in enumerate(ssus):
             if ssu.xpos != -1:
                 # make the imagebox
-                imagebox = OffsetImage(arr_img_ssu, zoom=0.0277)
+                imagebox = OffsetImage(arr_img_ssu, zoom=0.4)
                 imagebox.image.axes = ax
                 # make the annotation box
                 ab = AnnotationBbox(imagebox, (ssu.xpos, ssu.ypos), frameon=False)
@@ -54,7 +54,7 @@ class Plotter:
         for ilsu,lsu in enumerate(lsus):
             if lsu.xpos != -1:
                 # make the imagebox
-                imagebox = OffsetImage(arr_img_lsu, zoom=0.0277)
+                imagebox = OffsetImage(arr_img_lsu, zoom=0.4)
                 imagebox.image.axes = ax
                 # make the annotation box
                 ab = AnnotationBbox(imagebox, (lsu.xpos, lsu.ypos), frameon=False)
@@ -64,10 +64,10 @@ class Plotter:
                 # ax.plot(ribo.pos, mrna.y, 'o', color = self.colors[iribo],zorder=10)
 
         # current time
-        ax.text(230,0.9,f'time: {state.time:.2f} seconds')
+        ax.text(230,0.99,f'time: {state.time:.2f} seconds')
         # 5' and 3' ends
-        ax.text(0,0.7,f"5' end")
-        ax.text(270,0.7,f"3' end")
+        ax.text(-5,0.75,f"5'")
+        ax.text(270,0.75,f"3'")
         # set x/y limits
         ax.set_ylim([0,1])
         ax.set_xlim([0,mrna.xlen])
