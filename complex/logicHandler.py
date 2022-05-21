@@ -85,21 +85,34 @@ class LogicHandler:
             prevPosStr = rxnSpl[-1]
 
             #scan
-            if rxnType == f'scan_{prevPosStr}':
+            if( 
+                rxnType == f'scan_{prevPosStr}'
+                or rxnType == f'scan_from_scan_collision_{prevPosStr}'
+                or rxnType == f'scan_from_elongation_collision_{prevPosStr}'
+            ):
                 prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base,tc=1))
                 prevSSUs.append(SSU(x=prevPos+1,y=ssu_y_base,tc=1))
                 stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
 
             #backward_scan
-            if rxnType == f'backward_scan_{prevPosStr}':
+            if(
+                rxnType == f'backward_scan_{prevPosStr}'
+                or rxnType == f'backward_scan_from_scan_collision_{prevPosStr}'
+                or rxnType == f'backward_scan_from_elongation_collision_{prevPosStr}'
+            ):
                 prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base,tc=1))
                 prevSSUs.append(SSU(x=prevPos-1,y=ssu_y_base,tc=1))
                 stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
 
             #scan_to_elongate
-            if rxnType == f'scan_to_elongate_{prevPosStr}':
+            if( 
+                rxnType == f'scan_to_elongate_{prevPosStr}'
+                or rxnType == f'scan_to_elongate_from_leading_collision_{prevPosStr}'
+                or rxnType == f'scan_to_elongate_from_trailing_scan_collision_{prevPosStr}'
+                or rxnType == f'scan_to_elongate_from_trailing_elongation_collision_{prevPosStr}'
+            ):
                 prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base,tc=1))
                 prevLSUs.remove(LSU(x=-1,y=ssu_y_base))
                 prevSSUs.append(SSU(x=prevPos,y=ssu_y_up,tc=0))
@@ -107,13 +120,12 @@ class LogicHandler:
                 stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
 
-            #TODO parse trivial collision reaction rules
-            if rxnType == f'collide_upon_elongation_{prevPosStr}':
-                stateList.append(State(time,prevSSUs,prevLSUs))
-                continue
-
             #elongate
-            if rxnType == f'elongate_{prevPosStr}' or rxnType == f'elongate_from_elongation_collision_{prevPosStr}':
+            if( 
+                rxnType == f'elongate_{prevPosStr}'
+                or rxnType == f'elongate_from_scan_collision_{prevPosStr}'
+                or rxnType == f'elongate_from_elongation_collision_{prevPosStr}'
+            ):
                 prevSSUs.remove(SSU(x=prevPos,y=ssu_y_up,tc=0))
                 prevLSUs.remove(LSU(x=prevPos,y=lsu_y_down))
                 prevSSUs.append(SSU(x=prevPos+3,y=ssu_y_up,tc=0))
@@ -131,13 +143,25 @@ class LogicHandler:
                 continue
 
             #recycle
-            if rxnType == f'recycle_{prevPosStr}':
+            if( 
+                rxnType == f'recycle_{prevPosStr}'
+                or rxnType == f'recycle_from_trailing_collision_{prevPosStr}'
+                or rxnType == f'recycle_from_leading_collision_{prevPosStr}'
+                or rxnType == f'recycle_from_both_collision_{prevPosStr}'
+            ):
                 prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base,tc=0))
                 prevSSUs.append(SSU(x=-1,y=ssu_y_base,tc=0))
                 stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
 
-            #TODO terminate and recycling
+            #trivial collisions
+            if( 
+                rxnType == f'collide_upon_scanning_{prevPosStr}'
+                or rxnType == f'collide_upon_backward_scanning_{prevPosStr}'
+                or rxnType == f'collide_upon_elongation_{prevPosStr}'
+            ):
+                stateList.append(State(time,prevSSUs,prevLSUs))
+                continue
 
         return stateList
     
