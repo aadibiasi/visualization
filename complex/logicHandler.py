@@ -54,10 +54,13 @@ class LogicHandler:
         stateList = [State(0,initialSSUs,initialLSUs)]
 
         for i in self.firings.index:
+            rxnType = self.firings['rxn'][i]
             try:
                 prevSSUs = cp.copy(stateList[i].ssus)
                 prevLSUs = cp.copy(stateList[i].lsus)
             except IndexError:
+                print(rxnType)
+                print(i)
                 print("couldn't parse a reaction, quitting")
                 break
             time = self.firings['time'][i]
@@ -104,12 +107,33 @@ class LogicHandler:
                 stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
 
+            #TODO parse trivial collision reaction rules
+            if rxnType == f'collide_upon_elongation_{prevPosStr}':
+                stateList.append(State(time,prevSSUs,prevLSUs))
+                continue
+
             #elongate
-            if rxnType == f'elongate_{prevPosStr}':
+            if rxnType == f'elongate_{prevPosStr}' or rxnType == f'elongate_from_elongation_collision_{prevPosStr}':
                 prevSSUs.remove(SSU(x=prevPos,y=ssu_y_up,tc=0))
                 prevLSUs.remove(LSU(x=prevPos,y=lsu_y_down))
                 prevSSUs.append(SSU(x=prevPos+3,y=ssu_y_up,tc=0))
                 prevLSUs.append(LSU(x=prevPos+3,y=lsu_y_down))
+                stateList.append(State(time,prevSSUs,prevLSUs))
+                continue
+
+            #terminate
+            if rxnType == f'terminate_{prevPosStr}':
+                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_up,tc=0))
+                prevLSUs.remove(LSU(x=prevPos,y=lsu_y_down))
+                prevSSUs.append(SSU(x=prevPos,y=ssu_y_base,tc=0))
+                prevLSUs.append(LSU(x=-1,y=0.5))
+                stateList.append(State(time,prevSSUs,prevLSUs))
+                continue
+
+            #recycle
+            if rxnType == f'recycle_{prevPosStr}':
+                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base,tc=0))
+                prevSSUs.append(SSU(x=-1,y=ssu_y_base,tc=0))
                 stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
 
@@ -124,7 +148,7 @@ class LogicHandler:
         return self.states[state_ind]
 
 if __name__ == '__main__':
-    LH = LogicHandler('test.tsv')
+    LH = LogicHandler('model_1.rxns_mod.tsv')
     
     #This kinda blows up the terminal because it lists all 100 SSUs and LSUs for every state
     #for i in LH.states:
