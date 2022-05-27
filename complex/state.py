@@ -9,6 +9,8 @@ class State:
         self.mrna = MRNA()
         self.ssus = s
         self.lsus = l
+        #TODO create effects
+        #TODO generate smooth states
 
     def __str__(self):
         return f'Time: {self.time}\nSSUs: {self.ssus}\nLSUs: {self.lsus}'

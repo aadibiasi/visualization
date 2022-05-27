@@ -3,7 +3,7 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
 class Plotter:
     def __init__(self, options=None):
-        self.options = options\
+        self.options = options
         # colors for lines and dots style plotting
         # self.colors = ['red','green','blue','yellow','magenta','cyan','gray','brown']
 
@@ -21,8 +21,10 @@ class Plotter:
             mrna_arr_img = plt.imread(imfile)
         # make an image box
         imagebox = OffsetImage(mrna_arr_img, zoom=0.145)
+        #TODO make zoom attributes to objects
         imagebox.image.axes = ax
         # make the annotation box
+        #TODO make mrna into sine wave, 6 bases per oscillation
         ab = AnnotationBbox(imagebox, ((mrna.xlen/2.0)-5, mrna.y), frameon=False)
         # add annotation box to the plot
         ax.add_artist(ab)

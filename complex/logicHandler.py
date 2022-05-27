@@ -47,7 +47,8 @@ class LogicHandler:
         lsu_y_base = 0.5
         lsu_y_down = 0.45
 
-        initialSSUs = 100 * [SSU(x=-1,y=0.5,tc=0)]
+        #TODO remove this hardcode
+        initialSSUs = 100 * [SSU(x=-1,y=0.5,tc=1)]
         #initialSSUs += [SSU(x=200,y=0.5,tc=0),SSU(x=230,y=0.5,tc=0)]
         initialLSUs = 100 * [LSU(x=-1,y=0.5)]
         #initialLSUs += [LSU(x=200,y=0.4),LSU(x=230,y=0.4)]
@@ -67,7 +68,7 @@ class LogicHandler:
             rxnType = self.firings['rxn'][i]
 
             #bind_tc_free_ssu
-            if rxnType == 'bind_tc_free_ssu':
+            if rxnType == 'tc_free_ssu_binding':
                 prevSSUs.remove(SSU(x=-1,y=ssu_y_base,tc=0))
                 prevSSUs.append(SSU(x=-1,y=ssu_y_base,tc=1))
                 stateList.append(State(time,prevSSUs,prevLSUs))
@@ -133,7 +134,7 @@ class LogicHandler:
                 stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
 
-            #terminate
+            #terminate - ssu.lsu.mrna -> lsu + ssu.mrna
             if rxnType == f'terminate_{prevPosStr}':
                 prevSSUs.remove(SSU(x=prevPos,y=ssu_y_up,tc=0))
                 prevLSUs.remove(LSU(x=prevPos,y=lsu_y_down))
@@ -142,15 +143,50 @@ class LogicHandler:
                 stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
 
-            #recycle
+            #recycle - ssu.mrna -> ssu + mrna
             if( 
                 rxnType == f'recycle_{prevPosStr}'
                 or rxnType == f'recycle_from_trailing_collision_{prevPosStr}'
                 or rxnType == f'recycle_from_leading_collision_{prevPosStr}'
                 or rxnType == f'recycle_from_both_collision_{prevPosStr}'
+                or rxnType == f'scan_terminate_no_hit_{prevPosStr}'
+                or rxnType == f'scan_terminate_from_scan_collision_3_hit_{prevPosStr}'
+                or rxnType == f'scan_terminate_from_scan_collision_5_hit_{prevPosStr}'
+                or rxnType == f'scan_terminate_from_elongation_collision_3_hit_{prevPosStr}'
+                or rxnType == f'scan_terminate_from_elongation_collision_5_hit_{prevPosStr}'
+                or rxnType == f'scan_terminate_from_collision_both_hit_scanning_scanning_{prevPosStr}'
+                or rxnType == f'scan_terminate_from_collision_both_hit_elongating_scanning_{prevPosStr}'
+                or rxnType == f'scan_terminate_from_collision_both_hit_scanning_elongating_{prevPosStr}'
+                or rxnType == f'scan_terminate_from_collision_both_hit_elongating_elongating_{prevPosStr}'
             ):
                 prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base,tc=0))
                 prevSSUs.append(SSU(x=-1,y=ssu_y_base,tc=0))
+                stateList.append(State(time,prevSSUs,prevLSUs))
+                continue
+            
+            #recycle part 2 - ssu.tc.mrna -> ssu + tc + mrna
+            if(
+                rxnType == f'scan_terminate_no_hit_tc_ejects_{prevPosStr}'
+                or rxnType == f'scan_terminate_from_scan_collision_3_hit_tc_ejects_{prevPosStr}'
+                or rxnType == f'scan_terminate_from_scan_collision_5_hit_tc_ejects_{prevPosStr}'
+                or rxnType == f'scan_terminate_from_elongation_collision_3_hit_tc_ejects_{prevPosStr}'
+                or rxnType == f'scan_terminate_from_elongation_collision_5_hit_tc_ejects_{prevPosStr}'
+                or rxnType == f'scan_terminate_from_collision_both_hit_scanning_scanning_tc_ejects_{prevPosStr}'
+                or rxnType == f'scan_terminate_from_collision_both_hit_elongating_scanning_tc_ejects_{prevPosStr}'
+                or rxnType == f'scan_terminate_from_collision_both_hit_scanning_elongating_tc_ejects_{prevPosStr}'
+                or rxnType == f'scan_terminate_from_collision_both_hit_elongating_elongating_tc_ejects_{prevPosStr}'
+            ):
+                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base,tc=1))
+                prevSSUs.append(SSU(x=-1,y=ssu_y_base,tc=0))
+                stateList.append(State(time,prevSSUs,prevLSUs))
+                continue
+
+            #fancy termination - ssu.lsu.mrna -> ssu + lsu + mrna
+            if rxnType == f'elong_preterm_no_hit_{prevPosStr}':
+                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_up,tc=0))
+                prevLSUs.remove(LSU(x=prevPos,y=lsu_y_down))
+                prevSSUs.append(SSU(x=-1,y=ssu_y_base,tc=0))
+                prevLSUs.append(LSU(x=-1,y=0.5))
                 stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
 
@@ -162,6 +198,11 @@ class LogicHandler:
             ):
                 stateList.append(State(time,prevSSUs,prevLSUs))
                 continue
+
+            #TODO add tc as a separate object
+            #TODO add ssu.lsu binding sites pointing to each other
+            #L = LSU(x=pos); S = SSU(x=pos); L.isbi = S; S.isbi = L
+            #Confirm pointer by id(L.isbi) == id(S) and id(S.isbi) == id(L)
 
         return stateList
     
