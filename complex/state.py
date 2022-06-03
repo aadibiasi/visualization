@@ -1,15 +1,18 @@
 from mrna import MRNA
 from smallsubunit import SSU
+from ternarycomplex import TC
 from largesubunit import LSU
+from effect import Effect
 
 class State:
 
-    def __init__(self,t=0,s=[],l=[]):
+    def __init__(self,t=0,s=[],tc=[],l=[],e=[]):
         self.time = t
         self.mrna = MRNA()
         self.ssus = s
+        self.tcs = tc
         self.lsus = l
-        #TODO create effects
+        self.effects = e
         #TODO generate smooth states
 
     def __str__(self):
@@ -43,9 +46,25 @@ class State:
         self._ssus = newSSUs
 
     @property
+    def tcs(self):
+        return self._tcs
+
+    @tcs.setter
+    def tcs(self, newTCs):
+        self._tcs = newTCs
+
+    @property
     def lsus(self):
         return self._lsus
 
     @lsus.setter
     def lsus(self, newLSUs):
         self._lsus = newLSUs
+
+    @property
+    def effects(self):
+        return self._effects
+
+    @effects.setter
+    def effects(self, newEffects):
+        self._effects = newEffects

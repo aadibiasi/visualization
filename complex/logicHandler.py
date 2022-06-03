@@ -4,7 +4,9 @@ import numpy as np
 from state import State
 from mrna import MRNA
 from smallsubunit import SSU
+from ternarycomplex import TC
 from largesubunit import LSU
+from effect import Effect
 
 class LogicHandler:
 
@@ -43,22 +45,25 @@ class LogicHandler:
 
     def genStates(self):
         ssu_y_base = 0.5
-        ssu_y_up = 0.565
+        ssu_y_up = 0.55
         lsu_y_base = 0.5
         lsu_y_down = 0.45
 
         #TODO remove this hardcode
-        initialSSUs = 100 * [SSU(x=-1,y=0.5,tc=1)]
-        #initialSSUs += [SSU(x=200,y=0.5,tc=0),SSU(x=230,y=0.5,tc=0)]
-        initialLSUs = 100 * [LSU(x=-1,y=0.5)]
-        #initialLSUs += [LSU(x=200,y=0.4),LSU(x=230,y=0.4)]
-        stateList = [State(0,initialSSUs,initialLSUs)]
+        initialSSUs = 100 * [SSU(x=-1,y=ssu_y_base)]
+        initialTCs = 100 * [TC(x=-1,y=ssu_y_base)]
+        initialLSUs = 100 * [LSU(x=-1,y=lsu_y_base)]
+        initialEffects = []
+        stateList = [State(0,initialSSUs,initialTCs,initialLSUs,initialEffects)]
 
         for i in self.firings.index:
             rxnType = self.firings['rxn'][i]
             try:
                 prevSSUs = cp.copy(stateList[i].ssus)
+                prevTCs = cp.copy(stateList[i].tcs)
                 prevLSUs = cp.copy(stateList[i].lsus)
+                prevEffs = cp.copy(stateList[i].effects)
+
             except IndexError:
                 print(rxnType)
                 print(i)
@@ -66,24 +71,56 @@ class LogicHandler:
                 break
             time = self.firings['time'][i]
             rxnType = self.firings['rxn'][i]
+            rxnSpl = rxnType.split('_')
+            if rxnType != 'tc_free_ssu_binding':
+                prevPos = int(rxnSpl[-1])
+                prevPosStr = rxnSpl[-1]
 
-            #bind_tc_free_ssu
+            #remove collisions
+            if ('from' in rxnType) and ('collision' in rxnType):
+                #no collision lost: scan_to_elongate
+                #-15 collision lost: scan, elongate, recycle_from_trailing, scan_terminate_from_scan_collision_5_hit, scan_terminate_from_elongation_collision_5_hit
+                #+15 collision lost: backward_scan, recycle_from_leading, scan_terminate_from_scan_collision_3_hit, scan_terminate_from_elongation_collision_3_hit
+                #+-15 collision lost: scan_terminate_from_collision_both_hit
+                if(
+                    rxnType == f'scan_from_scan_collision_{prevPosStr}'
+                    or rxnType == f'scan_from_elongation_collision_{prevPosStr}'
+                    or rxnType == f'elongate_from_scan_collision_{prevPosStr}'
+                    or rxnType == f'elongate_from_elongation_collision_{prevPosStr}'
+                    or 'recycle_from_trailing' in rxnType
+                    or '5_hit' in rxnType
+                    or 'both_hit' in rxnType
+                ):
+                    prevEffs.remove(Effect(x=prevPos-15,y=ssu_y_base,n='collision'))
+
+                if(
+                    rxnType == f'backward_scan_from_scan_collision_{prevPosStr}'
+                    or rxnType == f'backward_scan_from_elongation_collision_{prevPosStr}'
+                    or 'recycle_from_leading' in rxnType
+                    or '3_hit' in rxnType
+                    or 'both_hit' in rxnType
+                ):
+                    prevEffs.remove(Effect(x=prevPos+15,y=ssu_y_base,n='collision'))
+
+            #bind_tc_free_ssu / tc_free_ssu_binding
             if rxnType == 'tc_free_ssu_binding':
-                prevSSUs.remove(SSU(x=-1,y=ssu_y_base,tc=0))
-                prevSSUs.append(SSU(x=-1,y=ssu_y_base,tc=1))
-                stateList.append(State(time,prevSSUs,prevLSUs))
+                prevSSUs.remove(SSU(x=-1,y=ssu_y_base))
+                prevSSUs.append(SSU(x=-1,y=ssu_y_base))
+                #prevTCs.append(TC(x=-1,y=ssu_y_base))
+                stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
             #bind_cap_pic_0
             if rxnType == 'bind_cap_pic_0':
-                prevSSUs.remove(SSU(x=-1,y=ssu_y_base,tc=1))
-                prevSSUs.append(SSU(x=0,y=ssu_y_base,tc=1))
-                stateList.append(State(time,prevSSUs,prevLSUs))
+                prevSSUs.remove(SSU(x=-1,y=ssu_y_base))
+                #prevTCs.remove(TC(x=-1,y=ssu_y_base))
+                prevSSUs.append(SSU(x=0,y=ssu_y_base))
+                #prevTCs.append(TC(x=0,y=ssu_y_base))
+                if Effect(x=0,y=ssu_y_base,n='cap') not in prevEffs: # I don't think this line should be needed but it is?
+                    prevEffs.append(Effect(x=0,y=ssu_y_base,n='cap',
+                        ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','cap.png']))
+                stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
-            
-            rxnSpl = rxnType.split('_')
-            prevPos = int(rxnSpl[-1])
-            prevPosStr = rxnSpl[-1]
 
             #scan
             if( 
@@ -91,9 +128,14 @@ class LogicHandler:
                 or rxnType == f'scan_from_scan_collision_{prevPosStr}'
                 or rxnType == f'scan_from_elongation_collision_{prevPosStr}'
             ):
-                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base,tc=1))
-                prevSSUs.append(SSU(x=prevPos+1,y=ssu_y_base,tc=1))
-                stateList.append(State(time,prevSSUs,prevLSUs))
+                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base))
+                prevSSUs.append(SSU(x=prevPos+1,y=ssu_y_base))
+                # if TC(x=prevPos,y=ssu_y_base) in prevTCs:
+                #     prevTCs.remove(TC(x=prevPos,y=ssu_y_base))
+                #     prevTCs.append(TC(x=prevPos+1,y=ssu_y_base))
+                if prevPos == 29:
+                    prevEffs.remove(Effect(x=0,y=ssu_y_base,n='cap'))
+                stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
             #backward_scan
@@ -102,9 +144,14 @@ class LogicHandler:
                 or rxnType == f'backward_scan_from_scan_collision_{prevPosStr}'
                 or rxnType == f'backward_scan_from_elongation_collision_{prevPosStr}'
             ):
-                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base,tc=1))
-                prevSSUs.append(SSU(x=prevPos-1,y=ssu_y_base,tc=1))
-                stateList.append(State(time,prevSSUs,prevLSUs))
+                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base))
+                #prevTCs.remove(TC(x=prevPos,y=ssu_y_base))
+                prevSSUs.append(SSU(x=prevPos-1,y=ssu_y_base))
+                #prevTCs.append(TC(x=prevPos-1,y=ssu_y_base))
+                if prevPos == 30:
+                    prevEffs.append(Effect(x=0,y=ssu_y_base,n='cap',
+                     ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','cap.png']))
+                stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
             #scan_to_elongate
@@ -114,11 +161,14 @@ class LogicHandler:
                 or rxnType == f'scan_to_elongate_from_trailing_scan_collision_{prevPosStr}'
                 or rxnType == f'scan_to_elongate_from_trailing_elongation_collision_{prevPosStr}'
             ):
-                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base,tc=1))
+                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base))
+                #prevTCs.remove(TC(x=prevPos,y=ssu_y_base))
                 prevLSUs.remove(LSU(x=-1,y=ssu_y_base))
-                prevSSUs.append(SSU(x=prevPos,y=ssu_y_up,tc=0))
+                prevSSUs.append(SSU(x=prevPos,y=ssu_y_up))
                 prevLSUs.append(LSU(x=prevPos,y=lsu_y_down))
-                stateList.append(State(time,prevSSUs,prevLSUs))
+                if prevPos >= 27 and prevPos < 30:
+                    prevEffs.remove(Effect(x=0,y=ssu_y_base,n='cap'))
+                stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
             #elongate
@@ -127,20 +177,20 @@ class LogicHandler:
                 or rxnType == f'elongate_from_scan_collision_{prevPosStr}'
                 or rxnType == f'elongate_from_elongation_collision_{prevPosStr}'
             ):
-                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_up,tc=0))
+                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_up))
                 prevLSUs.remove(LSU(x=prevPos,y=lsu_y_down))
-                prevSSUs.append(SSU(x=prevPos+3,y=ssu_y_up,tc=0))
+                prevSSUs.append(SSU(x=prevPos+3,y=ssu_y_up))
                 prevLSUs.append(LSU(x=prevPos+3,y=lsu_y_down))
-                stateList.append(State(time,prevSSUs,prevLSUs))
+                stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
             #terminate - ssu.lsu.mrna -> lsu + ssu.mrna
             if rxnType == f'terminate_{prevPosStr}':
-                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_up,tc=0))
+                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_up))
                 prevLSUs.remove(LSU(x=prevPos,y=lsu_y_down))
-                prevSSUs.append(SSU(x=prevPos,y=ssu_y_base,tc=0))
-                prevLSUs.append(LSU(x=-1,y=0.5))
-                stateList.append(State(time,prevSSUs,prevLSUs))
+                prevSSUs.append(SSU(x=prevPos,y=ssu_y_base))
+                prevLSUs.append(LSU(x=-1,y=lsu_y_base))
+                stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
             #recycle - ssu.mrna -> ssu + mrna
@@ -159,9 +209,11 @@ class LogicHandler:
                 or rxnType == f'scan_terminate_from_collision_both_hit_scanning_elongating_{prevPosStr}'
                 or rxnType == f'scan_terminate_from_collision_both_hit_elongating_elongating_{prevPosStr}'
             ):
-                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base,tc=0))
-                prevSSUs.append(SSU(x=-1,y=ssu_y_base,tc=0))
-                stateList.append(State(time,prevSSUs,prevLSUs))
+                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base))
+                prevSSUs.append(SSU(x=-1,y=ssu_y_base))
+                if prevPos < 30:
+                    prevEffs.remove(Effect(x=0,y=ssu_y_base,n='cap'))
+                stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
             
             #recycle part 2 - ssu.tc.mrna -> ssu + tc + mrna
@@ -176,27 +228,34 @@ class LogicHandler:
                 or rxnType == f'scan_terminate_from_collision_both_hit_scanning_elongating_tc_ejects_{prevPosStr}'
                 or rxnType == f'scan_terminate_from_collision_both_hit_elongating_elongating_tc_ejects_{prevPosStr}'
             ):
-                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base,tc=1))
-                prevSSUs.append(SSU(x=-1,y=ssu_y_base,tc=0))
-                stateList.append(State(time,prevSSUs,prevLSUs))
+                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base))
+                #prevTCs.remove(TC(x=prevPos,y=ssu_y_base))
+                prevSSUs.append(SSU(x=-1,y=ssu_y_base))
+                if prevPos < 30:
+                    prevEffs.remove(Effect(x=0,y=ssu_y_base,n='cap'))
+                stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
             #fancy termination - ssu.lsu.mrna -> ssu + lsu + mrna
             if rxnType == f'elong_preterm_no_hit_{prevPosStr}':
-                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_up,tc=0))
+                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_up))
                 prevLSUs.remove(LSU(x=prevPos,y=lsu_y_down))
-                prevSSUs.append(SSU(x=-1,y=ssu_y_base,tc=0))
-                prevLSUs.append(LSU(x=-1,y=0.5))
-                stateList.append(State(time,prevSSUs,prevLSUs))
+                prevSSUs.append(SSU(x=-1,y=ssu_y_base))
+                prevLSUs.append(LSU(x=-1,y=lsu_y_base))
+                if prevPos < 30:
+                    prevEffs.remove(Effect(x=0,y=ssu_y_base,n='cap'))
+                stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
-            #trivial collisions
-            if( 
-                rxnType == f'collide_upon_scanning_{prevPosStr}'
-                or rxnType == f'collide_upon_backward_scanning_{prevPosStr}'
-                or rxnType == f'collide_upon_elongation_{prevPosStr}'
-            ):
-                stateList.append(State(time,prevSSUs,prevLSUs))
+            #collisions
+            if 'collide' in rxnType:
+                if 'backward' in rxnType:
+                    prevEffs.append(Effect(x=prevPos-15,y=ssu_y_base,n='collision',
+                        ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','collision.png']))
+                else:
+                    prevEffs.append(Effect(x=prevPos+15,y=ssu_y_base,n='collision',
+                        ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','collision.png']))
+                stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
             #TODO add tc as a separate object
