@@ -166,8 +166,6 @@ class LogicHandler:
                 prevLSUs.remove(LSU(x=-1,y=ssu_y_base))
                 prevSSUs.append(SSU(x=prevPos,y=ssu_y_up))
                 prevLSUs.append(LSU(x=prevPos,y=lsu_y_down))
-                if prevPos >= 27 and prevPos < 30:
-                    prevEffs.remove(Effect(x=0,y=ssu_y_base,n='cap'))
                 stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
@@ -181,6 +179,8 @@ class LogicHandler:
                 prevLSUs.remove(LSU(x=prevPos,y=lsu_y_down))
                 prevSSUs.append(SSU(x=prevPos+3,y=ssu_y_up))
                 prevLSUs.append(LSU(x=prevPos+3,y=lsu_y_down))
+                if prevPos >= 27 and prevPos < 30:
+                    prevEffs.remove(Effect(x=0,y=ssu_y_base,n='cap'))
                 stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
@@ -251,10 +251,10 @@ class LogicHandler:
             if 'collide' in rxnType:
                 if 'backward' in rxnType:
                     prevEffs.append(Effect(x=prevPos-15,y=ssu_y_base,n='collision',
-                        ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','collision.png']))
+                        ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','star.png']))
                 else:
                     prevEffs.append(Effect(x=prevPos+15,y=ssu_y_base,n='collision',
-                        ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','collision.png']))
+                        ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','star.png']))
                 stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
