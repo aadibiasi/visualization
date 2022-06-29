@@ -74,18 +74,12 @@ class MovieGen:
         final_num_frames = len(np.arange(tmin, tmax, dt))
         #plt.figure(dpi=600,figsize=(8,6))
         # import IPython;IPython.embed()
-        frames = []
-        with alive_bar(final_num_frames) as bar:
-            for itime, time in enumerate(np.arange(tmin,tmax,dt)):
-                # get the state you want to plot
-                S = LH.get_state(time)
-                frames.append(S)
-                # advance the bar
-                bar()
-        #TODO: smooth frames here
+        times = np.arange(tmin,tmax,dt)
+        frames = LH.get_states_from_array(times)
+        # import IPython, sys;IPython.embed();sys.exit()
         print('Plotting frames')
         with alive_bar(final_num_frames) as bar:
-            for itime, time in enumerate(np.arange(tmin,tmax,dt)):
+            for itime, time in enumerate(times):
                 plt.figure(dpi=600,figsize=(6.4,3))
                 # instantiate an axis
                 ax = plt.gca()

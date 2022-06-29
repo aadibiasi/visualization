@@ -64,7 +64,7 @@ class Plotter:
         for itc,tc in enumerate(tcs):
             if tc.xpos != -1:
                 # make the imagebox
-                imagebox = OffsetImage(arr_img_tc, zoom=0.1)
+                imagebox = OffsetImage(arr_img_tc, zoom=0.03)
                 imagebox.image.axes = ax
                 # make the annotation box
                 ab = AnnotationBbox(imagebox, (tc.xpos, tc.ypos), frameon=False)
