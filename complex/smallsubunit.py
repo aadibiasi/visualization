@@ -7,11 +7,12 @@ class SSU:
         self.ypos = y
         self.last_time_modified = ltm
         self.image_path = os.path.join(*[
-            'C:\\','Users','alexd','Documents','faeder','visualization','complex','40s_blue100.png'
+            # 'C:\\','Users','alexd','Documents','faeder','visualization','complex','40s_blue100.png'
+            'C:\\','Users','Akhlore','visualization','complex','40s_blue100.png'
         ])
 
     def __str__(self):
-        return f'POS:{self.xpos}'
+        return f'SSU@POS:{self.xpos}@time:{self.last_time_modified}'
 
     def __repr__(self):
         return str(self)

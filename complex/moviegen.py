@@ -2,6 +2,13 @@ import matplotlib.pyplot as plt
 import os, subprocess, argparse, shutil
 from alive_progress import alive_bar
 import numpy as np
+import matplotlib
+# ['GTK3Agg', 'GTK3Cairo', 'MacOSX', 'nbAgg', 
+#     'Qt4Agg', 'Qt4Cairo', 'Qt5Agg', 'Qt5Cairo', 
+#     'TkAgg', 'TkCairo', 'WebAgg', 'WX', 'WXAgg', 
+#     'WXCairo', 'agg', 'cairo', 'pdf', 'pgf', 'ps', 'svg',
+#      'template']
+matplotlib.use('Qt4Agg')
 
 from logicHandler import LogicHandler
 from plotter import Plotter
@@ -66,6 +73,8 @@ class MovieGen:
         os.chdir(self.output)
         
         tmax, tmin = LH.tmax, LH.tmin
+        # zero is always the first value
+        tmin = 0
         if self.args.delta_t is None:
             dt = (tmax - tmin) / self.args.number_of_frames
         else:
@@ -78,9 +87,9 @@ class MovieGen:
         frames = LH.get_states_from_array(times)
         # import IPython, sys;IPython.embed();sys.exit()
         print('Plotting frames')
+        plt.figure(dpi=200,figsize=(6.4,3))
         with alive_bar(final_num_frames) as bar:
             for itime, time in enumerate(times):
-                plt.figure(dpi=600,figsize=(6.4,3))
                 # instantiate an axis
                 ax = plt.gca()
                 fig = plt.gcf()
@@ -90,8 +99,9 @@ class MovieGen:
                 P.plot(S, ax=ax, fig=fig)
                 # save the current frame
                 plt.savefig(f"{itime:05d}.png")
-                # close current frame to plot the next one
-                plt.close()
+                # clear current frame to plot the next one
+                plt.clf()
+                plt.cla()
                 # advance the bar
                 bar()
             

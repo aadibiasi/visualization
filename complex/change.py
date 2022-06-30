@@ -8,6 +8,12 @@ class Change:
         self.before = b
         self.after = a
 
+    def __repr__(self) -> str:
+        return str(self)
+
+    def __str__(self) -> str:
+        return f"before: {self.before}, after: {self.after}"
+
     @property
     def before(self):
         return self._before

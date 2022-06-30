@@ -60,21 +60,21 @@ class LogicHandler:
         tc_y_base = 0.475
         lsu_y_base = 0.5
         lsu_y_down = 0.45
-
         #TODO remove this hardcode
-        initialSSUs = 100 * [SSU(x=-1,y=ssu_y_base)]
-        initialTCs = 100 * [TC(x=-1,y=tc_y_base)]
-        initialLSUs = 100 * [LSU(x=-1,y=lsu_y_base)]
+        initialSSUs = [SSU(x=-1,y=ssu_y_base) for i in range(100)]
+        initialTCs = [TC(x=-1,y=tc_y_base) for i in range(100)]
+        initialLSUs = [LSU(x=-1,y=lsu_y_base) for i in range(100)]
         initialEffects = []
         stateList = [State(0,initialSSUs,initialTCs,initialLSUs,initialEffects)]
 
         for i in self.firings.index:
+            # import ipdb;ipdb.set_trace()
             rxnType = self.firings['rxn'][i]
             try:
-                prevSSUs = cp.copy(stateList[i].ssus)
-                prevTCs = cp.copy(stateList[i].tcs)
-                prevLSUs = cp.copy(stateList[i].lsus)
-                prevEffs = cp.copy(stateList[i].effects)
+                prevSSUs = cp.deepcopy(stateList[i].ssus)
+                prevTCs = cp.deepcopy(stateList[i].tcs)
+                prevLSUs = cp.deepcopy(stateList[i].lsus)
+                prevEffs = cp.deepcopy(stateList[i].effects)
 
             except IndexError:
                 print(rxnType)
@@ -130,13 +130,24 @@ class LogicHandler:
 
             #bind_cap_pic_0
             if rxnType == 'bind_cap_pic_0':
-                prevSSUs.remove(SSU(x=-1,y=ssu_y_base))
-                prevTCs.remove(TC(x=-1,y=tc_y_base))
-                prevSSUs.append(SSU(x=0,y=ssu_y_base))
-                prevTCs.append(TC(x=0,y=tc_y_base))
+                # SSUs
+                ind = prevSSUs.index(SSU(x=-1,y=ssu_y_base))
+                beforeSSU = cp.copy(prevSSUs[ind])
+                prevSSUs[ind].xpos = 0
+                prevSSUs[ind].last_time_modified = time
+                afterSSU = cp.copy(prevSSUs[ind])
+                self.changes.append(Change(beforeSSU,afterSSU))
+                # TCs
+                ind = prevTCs.index(TC(x=-1,y=tc_y_base))
+                beforeTC = cp.copy(prevTCs[ind])
+                prevTCs[ind].xpos = 0
+                prevTCs[ind].last_time_modified = time
+                afterTC = cp.copy(prevTCs[ind])
+                self.changes.append(Change(beforeTC,afterTC))
                 if Effect(x=0,y=ssu_y_base,n='cap') not in prevEffs: # I don't think this line should be needed but it is?
                     prevEffs.append(Effect(x=0,y=ssu_y_base,n='cap',
-                        ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','cap.png']))
+                        # ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','cap.png']))
+                        ip=['C:\\','Users','Akhlore','visualization','complex','cap.png']))
                 stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
@@ -185,7 +196,8 @@ class LogicHandler:
                     self.changes.append(Change(beforeTC,afterTC))
                 if prevPos == 30:
                     prevEffs.append(Effect(x=0,y=ssu_y_base,n='cap',
-                     ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','cap.png']))
+                    #  ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','cap.png']))
+                     ip=['C:\\','Users','Akhlore','visualization','complex','cap.png']))
                 stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
@@ -302,25 +314,28 @@ class LogicHandler:
                         ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','star.png']))
                 stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
-
+        
             #TODO add ssu.lsu binding sites pointing to each other
             #L = LSU(x=pos); S = SSU(x=pos); L.isbi = S; S.isbi = L
             #Confirm pointer by id(L.isbi) == id(S) and id(S.isbi) == id(L)
-
         return stateList
     
     def get_state(self,t):
         times = self.firings['time'].to_numpy()
         ind = np.digitize(t,times)
-        state_ind = ind-1 if (t - times[ind-1]) < times[ind] - t else ind
-        return self.states[state_ind]
+        state_ind = ind if (t - times[ind-1]) < times[ind] - t else ind
+        if state_ind < 0:
+            state_ind = 0
+        return cp.deepcopy(self.states[state_ind])
 
     def get_states_from_array(self,time_arr):
         frames = []
         with alive_bar(len(time_arr)) as bar:
             for itime, time in enumerate(time_arr):
                 # get the state you want to plot
+                print(f"curr time: {time}")
                 S = self.get_state(time)
+                print(f"state time: {S.time}")
                 S.time = time
                 frames.append(S)
                 # advance the bar
@@ -345,7 +360,11 @@ class LogicHandler:
                     badList = state.tcs
                 else:
                     badList = state.lsus
-                badList[istate].xpos = newPos
+                try:
+                    index = badList.index(beforeObj)
+                except ValueError as e:
+                    import IPython,sys;IPython.embed();sys.exit()
+                badList[index].xpos = newPos
         return frames
 
 

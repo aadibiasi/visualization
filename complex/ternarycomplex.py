@@ -7,11 +7,11 @@ class TC:
         self.ypos = y
         self.last_time_modified = ltm
         self.image_path = os.path.join(*[
-            'C:\\','Users','alexd','Documents','faeder','visualization','complex','tc.png'
+             'C:\\','Users','Akhlore','visualization','complex','tc.png'
         ])
 
     def __str__(self):
-        return f'POS:{self.xpos}'
+        return f'TC@POS:{self.xpos}'
 
     def __repr__(self):
         return str(self)
