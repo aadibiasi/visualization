@@ -149,14 +149,14 @@ class LogicHandler:
                 ind = prevSSUs.index(SSU(x=prevPos,y=ssu_y_base))
                 beforeSSU = cp.copy(prevSSUs[ind])
                 prevSSUs[ind].xpos += 1
-                prevSSUs[ind].time_last_modified = time
+                prevSSUs[ind].last_time_modified = time
                 afterSSU = cp.copy(prevSSUs[ind])
                 self.changes.append(Change(beforeSSU,afterSSU))
                 if TC(x=prevPos,y=tc_y_base) in prevTCs:
                     ind = prevTCs.index(TC(x=prevPos,y=tc_y_base))
                     beforeTC = cp.copy(prevTCs[ind])
                     prevTCs[ind].xpos += 1
-                    prevTCs[ind].time_last_modified = time
+                    prevTCs[ind].last_time_modified = time
                     afterTC = cp.copy(prevTCs[ind])
                     self.changes.append(Change(beforeTC,afterTC))
                 if prevPos == 29:
@@ -173,14 +173,14 @@ class LogicHandler:
                 ind = prevSSUs.index(SSU(x=prevPos,y=ssu_y_base))
                 beforeSSU = cp.copy(prevSSUs[ind])
                 prevSSUs[ind].xpos -= 1
-                prevSSUs[ind].time_last_modified = time
+                prevSSUs[ind].last_time_modified = time
                 afterSSU = cp.copy(prevSSUs[ind])
                 self.changes.append(Change(beforeSSU,afterSSU))
                 if TC(x=prevPos,y=tc_y_base) in prevTCs:
                     ind = prevTCs.index(TC(x=prevPos,y=tc_y_base))
                     beforeTC = cp.copy(prevTCs[ind])
                     prevTCs[ind].xpos -= 1
-                    prevTCs[ind].time_last_modified = time
+                    prevTCs[ind].last_time_modified = time
                     afterTC = cp.copy(prevTCs[ind])
                     self.changes.append(Change(beforeTC,afterTC))
                 if prevPos == 30:
@@ -214,13 +214,13 @@ class LogicHandler:
                 ind = prevSSUs.index(SSU(x=prevPos,y=ssu_y_up))
                 beforeSSU = cp.copy(prevSSUs[ind])
                 prevSSUs[ind].xpos += 3
-                prevSSUs[ind].time_last_modified = time
+                prevSSUs[ind].last_time_modified = time
                 afterSSU = cp.copy(prevSSUs[ind])
                 self.changes.append(Change(beforeSSU,afterSSU))
                 ind = prevLSUs.index(LSU(x=prevPos,y=lsu_y_down))
                 beforeLSU = cp.copy(prevLSUs[ind])
                 prevLSUs[ind].xpos += 3
-                prevLSUs[ind].time_last_modified = time
+                prevLSUs[ind].last_time_modified = time
                 afterLSU = cp.copy(prevTCs[ind])
                 self.changes.append(Change(beforeLSU,afterLSU))
                 if prevPos >= 27 and prevPos < 30:
@@ -335,7 +335,7 @@ class LogicHandler:
             totalDist = afterPos - beforePos
             totalTime = afterTime - beforeTime
             badStates = [S for S in frames if S.time > beforeTime and S.time < afterTime]
-            for state in badStates:
+            for istate, state in enumerate(badStates):
                 passedTime = state.time - beforeTime
                 fracTime = passedTime / totalTime
                 newPos = beforePos + fracTime * totalDist
@@ -345,8 +345,7 @@ class LogicHandler:
                     badList = state.tcs
                 else:
                     badList = state.lsus
-                ind = badList.index(beforeObj)
-                badList[ind].xpos = newPos
+                badList[istate].xpos = newPos
         return frames
 
 
