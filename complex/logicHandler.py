@@ -2,6 +2,7 @@ import copy as cp
 import pandas as pd
 import numpy as np
 from alive_progress import alive_bar
+from change import Change
 from state import State
 from mrna import MRNA
 from smallsubunit import SSU
@@ -14,6 +15,7 @@ class LogicHandler:
     def __init__(self,tsvFileName=""):
         self.tsv = tsvFileName
         self.firings = self.genFirings()
+        self.changes = []
         self.states = self.genStates()
         self.tmax, self.tmin = self.firings['time'].max(), self.firings['time'].min()
 
@@ -32,6 +34,14 @@ class LogicHandler:
     @firings.setter
     def firings(self, newFirings):
         self._firings = newFirings
+
+    @property
+    def changes(self):
+        return self._changes
+
+    @changes.setter
+    def changes(self, newChanges):
+        self._changes = newChanges
 
     @property
     def states(self):
@@ -136,12 +146,19 @@ class LogicHandler:
                 or rxnType == f'scan_from_scan_collision_{prevPosStr}'
                 or rxnType == f'scan_from_elongation_collision_{prevPosStr}'
             ):
-                # index, first copy, change, second copy
-                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base))
-                prevSSUs.append(SSU(x=prevPos+1,y=ssu_y_base))
+                ind = prevSSUs.index(SSU(x=prevPos,y=ssu_y_base))
+                beforeSSU = cp.copy(prevSSUs[ind])
+                prevSSUs[ind].xpos += 1
+                prevSSUs[ind].time_last_modified = time
+                afterSSU = cp.copy(prevSSUs[ind])
+                self.changes.append(Change(beforeSSU,afterSSU))
                 if TC(x=prevPos,y=tc_y_base) in prevTCs:
-                    prevTCs.remove(TC(x=prevPos,y=tc_y_base))
-                    prevTCs.append(TC(x=prevPos+1,y=tc_y_base))
+                    ind = prevTCs.index(TC(x=prevPos,y=tc_y_base))
+                    beforeTC = cp.copy(prevTCs[ind])
+                    prevTCs[ind].xpos += 1
+                    prevTCs[ind].time_last_modified = time
+                    afterTC = cp.copy(prevTCs[ind])
+                    self.changes.append(Change(beforeTC,afterTC))
                 if prevPos == 29:
                     prevEffs.remove(Effect(x=0,y=ssu_y_base,n='cap'))
                 stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
@@ -153,11 +170,19 @@ class LogicHandler:
                 or rxnType == f'backward_scan_from_scan_collision_{prevPosStr}'
                 or rxnType == f'backward_scan_from_elongation_collision_{prevPosStr}'
             ):
-                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base))
-                prevSSUs.append(SSU(x=prevPos-1,y=ssu_y_base))
+                ind = prevSSUs.index(SSU(x=prevPos,y=ssu_y_base))
+                beforeSSU = cp.copy(prevSSUs[ind])
+                prevSSUs[ind].xpos -= 1
+                prevSSUs[ind].time_last_modified = time
+                afterSSU = cp.copy(prevSSUs[ind])
+                self.changes.append(Change(beforeSSU,afterSSU))
                 if TC(x=prevPos,y=tc_y_base) in prevTCs:
-                    prevTCs.remove(TC(x=prevPos,y=tc_y_base))
-                    prevTCs.append(TC(x=prevPos-1,y=tc_y_base))
+                    ind = prevTCs.index(TC(x=prevPos,y=tc_y_base))
+                    beforeTC = cp.copy(prevTCs[ind])
+                    prevTCs[ind].xpos -= 1
+                    prevTCs[ind].time_last_modified = time
+                    afterTC = cp.copy(prevTCs[ind])
+                    self.changes.append(Change(beforeTC,afterTC))
                 if prevPos == 30:
                     prevEffs.append(Effect(x=0,y=ssu_y_base,n='cap',
                      ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','cap.png']))
@@ -186,10 +211,18 @@ class LogicHandler:
                 or rxnType == f'elongate_from_scan_collision_{prevPosStr}'
                 or rxnType == f'elongate_from_elongation_collision_{prevPosStr}'
             ):
-                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_up))
-                prevLSUs.remove(LSU(x=prevPos,y=lsu_y_down))
-                prevSSUs.append(SSU(x=prevPos+3,y=ssu_y_up))
-                prevLSUs.append(LSU(x=prevPos+3,y=lsu_y_down))
+                ind = prevSSUs.index(SSU(x=prevPos,y=ssu_y_up))
+                beforeSSU = cp.copy(prevSSUs[ind])
+                prevSSUs[ind].xpos += 3
+                prevSSUs[ind].time_last_modified = time
+                afterSSU = cp.copy(prevSSUs[ind])
+                self.changes.append(Change(beforeSSU,afterSSU))
+                ind = prevLSUs.index(LSU(x=prevPos,y=lsu_y_down))
+                beforeLSU = cp.copy(prevLSUs[ind])
+                prevLSUs[ind].xpos += 3
+                prevLSUs[ind].time_last_modified = time
+                afterLSU = cp.copy(prevTCs[ind])
+                self.changes.append(Change(beforeLSU,afterLSU))
                 if prevPos >= 27 and prevPos < 30:
                     prevEffs.remove(Effect(x=0,y=ssu_y_base,n='cap'))
                 stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
@@ -287,10 +320,33 @@ class LogicHandler:
         with alive_bar(len(time_arr)) as bar:
             for itime, time in enumerate(time_arr):
                 # get the state you want to plot
-                S = LH.get_state(time)
+                S = self.get_state(time)
+                S.time = time
                 frames.append(S)
                 # advance the bar
                 bar()
+        for ichange, change in enumerate(self.changes):
+            beforeObj = change.before
+            beforePos = change.before.xpos
+            beforeTime = change.before.last_time_modified
+            afterObj = change.after
+            afterPos = change.after.xpos
+            afterTime = change.after.last_time_modified
+            totalDist = afterPos - beforePos
+            totalTime = afterTime - beforeTime
+            badStates = [S for S in frames if S.time > beforeTime and S.time < afterTime]
+            for state in badStates:
+                passedTime = state.time - beforeTime
+                fracTime = passedTime / totalTime
+                newPos = beforePos + fracTime * totalDist
+                if isinstance(beforeObj,SSU):
+                    badList = state.ssus
+                elif isinstance(beforeObj,TC):
+                    badList = state.tcs
+                else:
+                    badList = state.lsus
+                ind = badList.index(beforeObj)
+                badList[ind].xpos = newPos
         return frames
 
 
