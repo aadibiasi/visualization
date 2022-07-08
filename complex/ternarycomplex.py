@@ -7,7 +7,8 @@ class TC:
         self.ypos = y
         self.last_time_modified = ltm
         self.image_path = os.path.join(*[
-             'C:\\','Users','Akhlore','visualization','complex','tc.png'
+            'C:\\','Users','alexd','Documents','faeder','visualization','complex','tc.png'
+            #'C:\\','Users','Akhlore','visualization','complex','tc.png'
         ])
 
     def __str__(self):

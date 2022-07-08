@@ -7,7 +7,8 @@ class LSU:
         self.ypos = y
         self.last_time_modified = ltm
         self.image_path = os.path.join(*[
-             'C:\\','Users','Akhlore','visualization','complex','60s_green101.png'
+            'C:\\','Users','alexd','Documents','faeder','visualization','complex','60s_green101.png'
+            #'C:\\','Users','Akhlore','visualization','complex','60s_green101.png'
         ])
 
     def __str__(self):

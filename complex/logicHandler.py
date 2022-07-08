@@ -116,15 +116,28 @@ class LogicHandler:
 
             #tc_free_ssu_binding
             if rxnType == 'tc_free_ssu_binding':
-                prevTCs.remove(TC(x=-1,y=-1))
-                prevTCs.append(TC(x=-1,y=tc_y_base))
+                # TCs
+                ind = prevTCs.index(TC(x=-1,y=-1))
+                beforeTC = cp.copy(prevTCs[ind])
+                prevTCs[ind].ypos = tc_y_base
+                prevTCs[ind].last_time_modified = time
+                afterTC = cp.copy(prevTCs[ind])
+                self.changes.append(Change(beforeTC,afterTC))
+
                 stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
             #tc_mrna_bound_ssu_binding
             if rxnType == f'tc_mrna_bound_ssu_binding_{prevPosStr}':
-                prevTCs.remove(TC(x=-1,y=-1))
-                prevTCs.append(TC(x=prevPos,y=tc_y_base))
+                # TCs
+                ind = prevTCs.index(TC(x=-1,y=-1))
+                beforeTC = cp.copy(prevTCs[ind])
+                prevTCs[ind].xpos = prevPos
+                prevTCs[ind].ypos = tc_y_base
+                prevTCs[ind].last_time_modified = time
+                afterTC = cp.copy(prevTCs[ind])
+                self.changes.append(Change(beforeTC,afterTC))
+
                 stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
@@ -137,6 +150,7 @@ class LogicHandler:
                 prevSSUs[ind].last_time_modified = time
                 afterSSU = cp.copy(prevSSUs[ind])
                 self.changes.append(Change(beforeSSU,afterSSU))
+
                 # TCs
                 ind = prevTCs.index(TC(x=-1,y=tc_y_base))
                 beforeTC = cp.copy(prevTCs[ind])
@@ -144,10 +158,13 @@ class LogicHandler:
                 prevTCs[ind].last_time_modified = time
                 afterTC = cp.copy(prevTCs[ind])
                 self.changes.append(Change(beforeTC,afterTC))
+
+                # Effects
                 if Effect(x=0,y=ssu_y_base,n='cap') not in prevEffs: # I don't think this line should be needed but it is?
                     prevEffs.append(Effect(x=0,y=ssu_y_base,n='cap',
-                        # ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','cap.png']))
-                        ip=['C:\\','Users','Akhlore','visualization','complex','cap.png']))
+                        ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','cap.png']))
+                        #ip=['C:\\','Users','Akhlore','visualization','complex','cap.png']))
+
                 stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
@@ -157,12 +174,15 @@ class LogicHandler:
                 or rxnType == f'scan_from_scan_collision_{prevPosStr}'
                 or rxnType == f'scan_from_elongation_collision_{prevPosStr}'
             ):
+                # SSUs
                 ind = prevSSUs.index(SSU(x=prevPos,y=ssu_y_base))
                 beforeSSU = cp.copy(prevSSUs[ind])
                 prevSSUs[ind].xpos += 1
                 prevSSUs[ind].last_time_modified = time
                 afterSSU = cp.copy(prevSSUs[ind])
                 self.changes.append(Change(beforeSSU,afterSSU))
+
+                # TCs
                 if TC(x=prevPos,y=tc_y_base) in prevTCs:
                     ind = prevTCs.index(TC(x=prevPos,y=tc_y_base))
                     beforeTC = cp.copy(prevTCs[ind])
@@ -170,8 +190,11 @@ class LogicHandler:
                     prevTCs[ind].last_time_modified = time
                     afterTC = cp.copy(prevTCs[ind])
                     self.changes.append(Change(beforeTC,afterTC))
+
+                # Effects
                 if prevPos == 29:
                     prevEffs.remove(Effect(x=0,y=ssu_y_base,n='cap'))
+
                 stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
@@ -181,12 +204,15 @@ class LogicHandler:
                 or rxnType == f'backward_scan_from_scan_collision_{prevPosStr}'
                 or rxnType == f'backward_scan_from_elongation_collision_{prevPosStr}'
             ):
+                # SSUs
                 ind = prevSSUs.index(SSU(x=prevPos,y=ssu_y_base))
                 beforeSSU = cp.copy(prevSSUs[ind])
                 prevSSUs[ind].xpos -= 1
                 prevSSUs[ind].last_time_modified = time
                 afterSSU = cp.copy(prevSSUs[ind])
                 self.changes.append(Change(beforeSSU,afterSSU))
+
+                # TCs
                 if TC(x=prevPos,y=tc_y_base) in prevTCs:
                     ind = prevTCs.index(TC(x=prevPos,y=tc_y_base))
                     beforeTC = cp.copy(prevTCs[ind])
@@ -194,10 +220,13 @@ class LogicHandler:
                     prevTCs[ind].last_time_modified = time
                     afterTC = cp.copy(prevTCs[ind])
                     self.changes.append(Change(beforeTC,afterTC))
+
+                # Effects
                 if prevPos == 30:
                     prevEffs.append(Effect(x=0,y=ssu_y_base,n='cap',
-                    #  ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','cap.png']))
-                     ip=['C:\\','Users','Akhlore','visualization','complex','cap.png']))
+                    ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','cap.png']))
+                    #ip=['C:\\','Users','Akhlore','visualization','complex','cap.png']))
+
                 stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
@@ -208,12 +237,32 @@ class LogicHandler:
                 or rxnType == f'scan_to_elongate_from_trailing_scan_collision_{prevPosStr}'
                 or rxnType == f'scan_to_elongate_from_trailing_elongation_collision_{prevPosStr}'
             ):
-                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base))
-                prevTCs.remove(TC(x=prevPos,y=tc_y_base))
-                prevLSUs.remove(LSU(x=-1,y=ssu_y_base))
-                prevSSUs.append(SSU(x=prevPos,y=ssu_y_up))
-                prevTCs.append(TC(x=-1,y=-1))
-                prevLSUs.append(LSU(x=prevPos,y=lsu_y_down))
+                # SSUs
+                ind = prevSSUs.index(SSU(x=prevPos,y=ssu_y_base))
+                beforeSSU = cp.copy(prevSSUs[ind])
+                prevSSUs[ind].ypos = ssu_y_up
+                prevSSUs[ind].last_time_modified = time
+                afterSSU = cp.copy(prevSSUs[ind])
+                self.changes.append(Change(beforeSSU,afterSSU))
+
+                # TCs
+                ind = prevTCs.index(TC(x=prevPos,y=tc_y_base))
+                beforeTC = cp.copy(prevTCs[ind])
+                prevTCs[ind].xpos = -1
+                prevTCs[ind].ypos = -1
+                prevTCs[ind].last_time_modified = time
+                afterTC = cp.copy(prevTCs[ind])
+                self.changes.append(Change(beforeTC,afterTC))
+
+                # LSUs
+                ind = prevLSUs.index(LSU(x=-1,y=lsu_y_base))
+                beforeLSU = cp.copy(prevLSUs[ind])
+                prevLSUs[ind].xpos = prevPos
+                prevLSUs[ind].ypos = lsu_y_down
+                prevLSUs[ind].last_time_modified = time
+                afterLSU = cp.copy(prevLSUs[ind])
+                self.changes.append(Change(beforeLSU,afterLSU))
+
                 stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
@@ -223,29 +272,48 @@ class LogicHandler:
                 or rxnType == f'elongate_from_scan_collision_{prevPosStr}'
                 or rxnType == f'elongate_from_elongation_collision_{prevPosStr}'
             ):
+                # SSUs
                 ind = prevSSUs.index(SSU(x=prevPos,y=ssu_y_up))
                 beforeSSU = cp.copy(prevSSUs[ind])
                 prevSSUs[ind].xpos += 3
                 prevSSUs[ind].last_time_modified = time
                 afterSSU = cp.copy(prevSSUs[ind])
                 self.changes.append(Change(beforeSSU,afterSSU))
+
+                # LSUs
                 ind = prevLSUs.index(LSU(x=prevPos,y=lsu_y_down))
                 beforeLSU = cp.copy(prevLSUs[ind])
                 prevLSUs[ind].xpos += 3
                 prevLSUs[ind].last_time_modified = time
-                afterLSU = cp.copy(prevTCs[ind])
+                afterLSU = cp.copy(prevLSUs[ind])
                 self.changes.append(Change(beforeLSU,afterLSU))
+
+                # Effects
                 if prevPos >= 27 and prevPos < 30:
                     prevEffs.remove(Effect(x=0,y=ssu_y_base,n='cap'))
+
                 stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
             #terminate - ssu.lsu.mrna -> lsu + ssu.mrna
             if rxnType == f'terminate_{prevPosStr}':
-                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_up))
-                prevLSUs.remove(LSU(x=prevPos,y=lsu_y_down))
-                prevSSUs.append(SSU(x=prevPos,y=ssu_y_base))
-                prevLSUs.append(LSU(x=-1,y=lsu_y_base))
+                # SSUs
+                ind = prevSSUs.index(SSU(x=prevPos,y=ssu_y_up))
+                beforeSSU = cp.copy(prevSSUs[ind])
+                prevSSUs[ind].ypos = ssu_y_base
+                prevSSUs[ind].last_time_modified = time
+                afterSSU = cp.copy(prevSSUs[ind])
+                self.changes.append(Change(beforeSSU,afterSSU))
+
+                # LSUs
+                ind = prevLSUs.index(LSU(x=prevPos,y=lsu_y_down))
+                beforeLSU = cp.copy(prevLSUs[ind])
+                prevLSUs[ind].xpos = -1
+                prevLSUs[ind].ypos = lsu_y_base
+                prevLSUs[ind].last_time_modified = time
+                afterLSU = cp.copy(prevLSUs[ind])
+                self.changes.append(Change(beforeLSU,afterLSU))
+
                 stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
@@ -265,10 +333,18 @@ class LogicHandler:
                 or rxnType == f'scan_terminate_from_collision_both_hit_scanning_elongating_{prevPosStr}'
                 or rxnType == f'scan_terminate_from_collision_both_hit_elongating_elongating_{prevPosStr}'
             ):
-                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base))
-                prevSSUs.append(SSU(x=-1,y=ssu_y_base))
+                # SSUs
+                ind = prevSSUs.index(SSU(x=prevPos,y=ssu_y_base))
+                beforeSSU = cp.copy(prevSSUs[ind])
+                prevSSUs[ind].xpos = -1
+                prevSSUs[ind].last_time_modified = time
+                afterSSU = cp.copy(prevSSUs[ind])
+                self.changes.append(Change(beforeSSU,afterSSU))
+
+                # Effects
                 if prevPos < 30:
                     prevEffs.remove(Effect(x=0,y=ssu_y_base,n='cap'))
+
                 stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
             
@@ -284,23 +360,54 @@ class LogicHandler:
                 or rxnType == f'scan_terminate_from_collision_both_hit_scanning_elongating_tc_ejects_{prevPosStr}'
                 or rxnType == f'scan_terminate_from_collision_both_hit_elongating_elongating_tc_ejects_{prevPosStr}'
             ):
-                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_base))
-                prevTCs.remove(TC(x=prevPos,y=tc_y_base))
-                prevSSUs.append(SSU(x=-1,y=ssu_y_base))
-                prevTCs.append(TC(x=-1,y=-1))
+                # SSUs
+                ind = prevSSUs.index(SSU(x=prevPos,y=ssu_y_base))
+                beforeSSU = cp.copy(prevSSUs[ind])
+                prevSSUs[ind].xpos = -1
+                prevSSUs[ind].last_time_modified = time
+                afterSSU = cp.copy(prevSSUs[ind])
+                self.changes.append(Change(beforeSSU,afterSSU))
+
+                # TCs
+                ind = prevTCs.index(TC(x=prevPos,y=tc_y_base))
+                beforeTC = cp.copy(prevTCs[ind])
+                prevTCs[ind].xpos = -1
+                prevTCs[ind].ypos = -1
+                prevTCs[ind].last_time_modified = time
+                afterTC = cp.copy(prevTCs[ind])
+                self.changes.append(Change(beforeTC,afterTC))
+
+                # Effects
                 if prevPos < 30:
                     prevEffs.remove(Effect(x=0,y=ssu_y_base,n='cap'))
+
                 stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
             #fancy termination - ssu.lsu.mrna -> ssu + lsu + mrna
             if rxnType == f'elong_preterm_no_hit_{prevPosStr}':
-                prevSSUs.remove(SSU(x=prevPos,y=ssu_y_up))
-                prevLSUs.remove(LSU(x=prevPos,y=lsu_y_down))
-                prevSSUs.append(SSU(x=-1,y=ssu_y_base))
-                prevLSUs.append(LSU(x=-1,y=lsu_y_base))
+                # SSUs
+                ind = prevSSUs.index(SSU(x=prevPos,y=ssu_y_up))
+                beforeSSU = cp.copy(prevSSUs[ind])
+                prevSSUs[ind].xpos = -1
+                prevSSUs[ind].ypos = ssu_y_base
+                prevSSUs[ind].last_time_modified = time
+                afterSSU = cp.copy(prevSSUs[ind])
+                self.changes.append(Change(beforeSSU,afterSSU))
+
+                # LSUs
+                ind = prevLSUs.index(LSU(x=prevPos,y=lsu_y_down))
+                beforeLSU = cp.copy(prevLSUs[ind])
+                prevLSUs[ind].xpos = -1
+                prevLSUs[ind].ypos = lsu_y_base
+                prevLSUs[ind].last_time_modified = time
+                afterLSU = cp.copy(prevLSUs[ind])
+                self.changes.append(Change(beforeLSU,afterLSU))
+
+                # Effects
                 if prevPos < 30:
                     prevEffs.remove(Effect(x=0,y=ssu_y_base,n='cap'))
+                
                 stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
@@ -333,27 +440,47 @@ class LogicHandler:
         with alive_bar(len(time_arr)) as bar:
             for itime, time in enumerate(time_arr):
                 # get the state you want to plot
-                print(f"curr time: {time}")
                 S = self.get_state(time)
-                print(f"state time: {S.time}")
                 S.time = time
                 frames.append(S)
                 # advance the bar
                 bar()
         for ichange, change in enumerate(self.changes):
             beforeObj = change.before
-            beforePos = change.before.xpos
+            beforeXPos = change.before.xpos
+            beforeYPos = change.before.ypos
             beforeTime = change.before.last_time_modified
             afterObj = change.after
-            afterPos = change.after.xpos
+            afterXPos = change.after.xpos
+            afterYPos = change.after.ypos
             afterTime = change.after.last_time_modified
-            totalDist = afterPos - beforePos
+            if isinstance(beforeObj,SSU):
+                if afterXPos == -1:
+                    afterXPos = beforeXPos
+                    afterYPos = 1.1
+            elif isinstance(beforeObj,TC):
+                if beforeXPos == -1 and beforeYPos == -1 and afterXPos > -1:
+                    beforeXPos = afterXPos
+                    beforeYPos = 1.1
+                if afterXPos == -1 and afterYPos == -1:
+                    afterXPos = beforeXPos
+                    afterYPos = 1.1
+            else:
+                if beforeXPos == -1:
+                    beforeXPos = afterXPos
+                    beforeYPos = -0.1
+                if afterXPos == -1:
+                    afterXPos = beforeXPos
+                    afterYPos = -0.1
+            totalXDist = afterXPos - beforeXPos
+            totalYDist = afterYPos - beforeYPos
             totalTime = afterTime - beforeTime
             badStates = [S for S in frames if S.time > beforeTime and S.time < afterTime]
             for istate, state in enumerate(badStates):
                 passedTime = state.time - beforeTime
                 fracTime = passedTime / totalTime
-                newPos = beforePos + fracTime * totalDist
+                newXPos = beforeXPos + fracTime * totalXDist
+                newYPos = beforeYPos + fracTime * totalYDist
                 if isinstance(beforeObj,SSU):
                     badList = state.ssus
                 elif isinstance(beforeObj,TC):
@@ -364,12 +491,13 @@ class LogicHandler:
                     index = badList.index(beforeObj)
                 except ValueError as e:
                     import IPython,sys;IPython.embed();sys.exit()
-                badList[index].xpos = newPos
+                badList[index].xpos = newXPos
+                badList[index].ypos = newYPos
         return frames
 
 
 if __name__ == '__main__':
-    LH = LogicHandler('model_1.rxns_mod.tsv')
+    LH = LogicHandler('model_1_tcs.tsv')
     
     #This kinda blows up the terminal because it lists all 100 SSUs and LSUs for every state
     #for i in LH.states:
