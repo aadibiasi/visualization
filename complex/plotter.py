@@ -62,16 +62,16 @@ class Plotter:
             arr_img_tc = plt.imread(imfile)
         # put each tc image on the plot
         for itc,tc in enumerate(tcs):
-            if tc.xpos != -1:
+            if tc.xpos > 0:
                 # make the imagebox
-                imagebox = OffsetImage(arr_img_tc, zoom=0.03)
-                imagebox.image.axes = ax
+                #imagebox = OffsetImage(arr_img_tc, zoom=0.03)
+                #imagebox.image.axes = ax
                 # make the annotation box
-                ab = AnnotationBbox(imagebox, (tc.xpos, tc.ypos), frameon=False)
+                #ab = AnnotationBbox(imagebox, (tc.xpos, tc.ypos), frameon=False)
                 # add the annotation box to the plot
-                ax.add_artist(ab)
+                #ax.add_artist(ab)
                 # plotting for lines and dots
-                # ax.plot(ribo.pos, mrna.y, 'o', color = self.colors[iribo],zorder=10)
+                ax.plot(tc.xpos, tc.ypos, 'o', color = 'orange', zorder=10)
 
         # next let's plot lsus 
         # get lsu image array

@@ -313,8 +313,7 @@ class LogicHandler:
                 prevLSUs[ind].last_time_modified = time
                 afterLSU = cp.copy(prevLSUs[ind])
                 self.changes.append(Change(beforeLSU,afterLSU))
-
-                stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
+                stateList.append(State(time + 20,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
             #recycle - ssu.mrna -> ssu + mrna
@@ -460,6 +459,7 @@ class LogicHandler:
                     afterYPos = 1.1
             elif isinstance(beforeObj,TC):
                 if beforeXPos == -1 and beforeYPos == -1 and afterXPos > -1:
+                    beforeTime = afterTime - 20
                     beforeXPos = afterXPos
                     beforeYPos = 1.1
                 if afterXPos == -1 and afterYPos == -1:
@@ -467,6 +467,7 @@ class LogicHandler:
                     afterYPos = 1.1
             else:
                 if beforeXPos == -1:
+                    beforeTime = afterTime - 20
                     beforeXPos = afterXPos
                     beforeYPos = -0.1
                 if afterXPos == -1:
@@ -494,7 +495,6 @@ class LogicHandler:
                 badList[index].xpos = newXPos
                 badList[index].ypos = newYPos
         return frames
-
 
 if __name__ == '__main__':
     LH = LogicHandler('model_1_tcs.tsv')
