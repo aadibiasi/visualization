@@ -313,7 +313,8 @@ class LogicHandler:
                 prevLSUs[ind].last_time_modified = time
                 afterLSU = cp.copy(prevLSUs[ind])
                 self.changes.append(Change(beforeLSU,afterLSU))
-                stateList.append(State(time + 20,prevSSUs,prevTCs,prevLSUs,prevEffs))
+
+                stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
 
             #recycle - ssu.mrna -> ssu + mrna
@@ -445,6 +446,8 @@ class LogicHandler:
                 # advance the bar
                 bar()
         for ichange, change in enumerate(self.changes):
+            index = None
+            terminating = False
             beforeObj = change.before
             beforeXPos = change.before.xpos
             beforeYPos = change.before.ypos
@@ -455,24 +458,41 @@ class LogicHandler:
             afterTime = change.after.last_time_modified
             if isinstance(beforeObj,SSU):
                 if afterXPos == -1:
+                    beforeObj.xpos = -1
+                    beforeTime = afterTime
+                    afterTime += 15
                     afterXPos = beforeXPos
                     afterYPos = 1.1
             elif isinstance(beforeObj,TC):
                 if beforeXPos == -1 and beforeYPos == -1 and afterXPos > -1:
-                    beforeTime = afterTime - 20
+                    beforeObj.ypos = afterObj.ypos
+                    beforeTime = afterTime - 15
                     beforeXPos = afterXPos
                     beforeYPos = 1.1
                 if afterXPos == -1 and afterYPos == -1:
+                    beforeObj.xpos = -1
+                    beforeObj.ypos = -1
+                    beforeTime = afterTime
+                    afterTime += 15
                     afterXPos = beforeXPos
                     afterYPos = 1.1
-            else:
+            elif isinstance(beforeObj,LSU):
                 if beforeXPos == -1:
-                    beforeTime = afterTime - 20
+                    beforeTime = afterTime - 15
                     beforeXPos = afterXPos
                     beforeYPos = -0.1
                 if afterXPos == -1:
+                    # May need to mark everything in order to prevent array indexing issues
+                    # Ribosome moves along with states so you can't just change the time
+                    # This solution works because every ribosome looks the same
+                    # But what if they were different pictures?
+                    beforeObj.xpos = -1
+                    beforeObj.ypos = 0.5
+                    beforeTime = afterTime
+                    afterTime += 20
                     afterXPos = beforeXPos
                     afterYPos = -0.1
+                    terminating = True
             totalXDist = afterXPos - beforeXPos
             totalYDist = afterYPos - beforeYPos
             totalTime = afterTime - beforeTime
@@ -482,11 +502,15 @@ class LogicHandler:
                 fracTime = passedTime / totalTime
                 newXPos = beforeXPos + fracTime * totalXDist
                 newYPos = beforeYPos + fracTime * totalYDist
+                if terminating == True and passedTime <= 10:
+                    state.effects.append(Effect(x=afterXPos,y=0.75,n='termination',
+                        ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','termination.jpg']))
+                    pass
                 if isinstance(beforeObj,SSU):
                     badList = state.ssus
                 elif isinstance(beforeObj,TC):
                     badList = state.tcs
-                else:
+                elif isinstance(beforeObj,LSU):
                     badList = state.lsus
                 try:
                     index = badList.index(beforeObj)

@@ -37,7 +37,15 @@ class Plotter:
         # ax.axhline(y=mrna.y, color='k', linestyle='-', linewidth=3,zorder=5)
         x = np.linspace(-10,300,1000)
         y = 0.01 * np.sin(np.pi/3 * x) + 0.5
-        plt.plot(x,y,color='red')
+        plt.plot(x,y,color='red',zorder=1)
+        ax.axhline(y=0.25, color='k', linestyle='-', linewidth=3, zorder=8)
+        ax.hlines(y=0.25, xmin=25, xmax=91, color='b', linestyle='-', linewidth=9, zorder=9)
+        ax.hlines(y=0.25, xmin=232, xmax=277, color='b', linestyle='-', linewidth=9, zorder=9)
+        pts = [0,25,91,100,125,150,175,200,232,277]
+        for p in pts:
+            ax.vlines(x=p, ymin=0.22, ymax=0.28, color='k', linestyle='-', linewidth=1, zorder=10)
+            ax.text(p,0.18,f"{p}",size=6,ha='center',zorder=10)
+        #TODO stall on 88
         
         # next let's plot ssus 
         # get ssu image array
@@ -45,12 +53,12 @@ class Plotter:
             arr_img_ssu = plt.imread(imfile)
         # put each ssu image on the plot
         for issu,ssu in enumerate(ssus):
-            if ssu.xpos != -1:
+            if ssu.xpos >= 0:
                 # make the imagebox
                 imagebox = OffsetImage(arr_img_ssu, zoom=0.4)
                 imagebox.image.axes = ax
                 # make the annotation box
-                ab = AnnotationBbox(imagebox, (ssu.xpos, ssu.ypos), frameon=False)
+                ab = AnnotationBbox(imagebox, (ssu.xpos, ssu.ypos), frameon=False, zorder=2)
                 # add the annotation box to the plot
                 ax.add_artist(ab)
                 # plotting for lines and dots
@@ -71,7 +79,7 @@ class Plotter:
                 # add the annotation box to the plot
                 #ax.add_artist(ab)
                 # plotting for lines and dots
-                ax.plot(tc.xpos, tc.ypos, 'o', color = 'orange', zorder=10)
+                ax.plot(tc.xpos, tc.ypos, 'o', color = 'orange', zorder=3)
 
         # next let's plot lsus 
         # get lsu image array
@@ -84,7 +92,7 @@ class Plotter:
                 imagebox = OffsetImage(arr_img_lsu, zoom=0.4)
                 imagebox.image.axes = ax
                 # make the annotation box
-                ab = AnnotationBbox(imagebox, (lsu.xpos, lsu.ypos), frameon=False)
+                ab = AnnotationBbox(imagebox, (lsu.xpos, lsu.ypos), frameon=False, zorder=2)
                 # add the annotation box to the plot
                 ax.add_artist(ab)
                 # plotting for lines and dots
@@ -99,7 +107,7 @@ class Plotter:
                     arr_img_effect = plt.imread(imfile)
                 if effect.xpos != -1:
                     # make the imagebox
-                    imagebox = OffsetImage(arr_img_effect, zoom=0.03)
+                    imagebox = OffsetImage(arr_img_effect, zoom=0.03, zorder=4)
                     imagebox.image.axes = ax
                     # make the annotation box
                     ab = AnnotationBbox(imagebox, (effect.xpos, effect.ypos), frameon=False)
@@ -109,12 +117,15 @@ class Plotter:
                     # ax.plot(ribo.pos, mrna.y, 'o', color = self.colors[iribo],zorder=10)
 
         # current time
-        ax.text(230,0.99,f'time: {state.time:.2f} seconds')
+        ax.text(0,-0.05,f'time: {state.time:.2f} seconds', zorder=10)
         # 5' and 3' ends
-        ax.text(-5,0.75,f"5'")
-        ax.text(270,0.75,f"3'")
+        ax.text(-6,0.22,f"5'",ha='center',zorder=10)
+        ax.text(285,0.22,f"3'",ha='center',zorder=10)
+        # ORF
+        ax.text(58,0.15,"ORF",ha='center',zorder=10)
+        ax.text(254.5,0.15,"ORF",ha='center',zorder=10)
         # set x/y limits
         ax.set_ylim([0,1])
-        ax.set_xlim([0,mrna.xlen+1])
+        ax.set_xlim([-1,mrna.xlen+1])
         # removes axis lines
         ax.axis('off')
