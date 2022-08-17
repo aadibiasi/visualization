@@ -1,6 +1,7 @@
 import copy as cp
 import pandas as pd
 import numpy as np
+import random as rand
 from alive_progress import alive_bar
 from change import Change
 from state import State
@@ -61,7 +62,7 @@ class LogicHandler:
         lsu_y_base = 0.5
         lsu_y_down = 0.45
         #TODO remove this hardcode
-        initialSSUs = [SSU(x=-1,y=ssu_y_base) for i in range(100)]
+        initialSSUs = [SSU(x=-1,y=-1) for i in range(100)]
         initialTCs = [TC(x=-1,y=tc_y_base) for i in range(100)]
         initialLSUs = [LSU(x=-1,y=lsu_y_base) for i in range(100)]
         initialEffects = []
@@ -87,7 +88,7 @@ class LogicHandler:
             if rxnType != 'tc_free_ssu_binding':
                 prevPos = int(rxnSpl[-1])
                 prevPosStr = rxnSpl[-1]
-
+                
             #remove collisions
             if ('from' in rxnType) and ('collision' in rxnType):
                 #no collision lost: scan_to_elongate
@@ -144,9 +145,10 @@ class LogicHandler:
             #bind_cap_pic_0
             if rxnType == 'bind_cap_pic_0':
                 # SSUs
-                ind = prevSSUs.index(SSU(x=-1,y=ssu_y_base))
+                ind = prevSSUs.index(SSU(x=-1,y=-1))
                 beforeSSU = cp.copy(prevSSUs[ind])
                 prevSSUs[ind].xpos = 0
+                prevSSUs[ind].ypos = ssu_y_base
                 prevSSUs[ind].last_time_modified = time
                 afterSSU = cp.copy(prevSSUs[ind])
                 self.changes.append(Change(beforeSSU,afterSSU))
@@ -337,6 +339,7 @@ class LogicHandler:
                 ind = prevSSUs.index(SSU(x=prevPos,y=ssu_y_base))
                 beforeSSU = cp.copy(prevSSUs[ind])
                 prevSSUs[ind].xpos = -1
+                prevSSUs[ind].ypos = -1
                 prevSSUs[ind].last_time_modified = time
                 afterSSU = cp.copy(prevSSUs[ind])
                 self.changes.append(Change(beforeSSU,afterSSU))
@@ -364,6 +367,7 @@ class LogicHandler:
                 ind = prevSSUs.index(SSU(x=prevPos,y=ssu_y_base))
                 beforeSSU = cp.copy(prevSSUs[ind])
                 prevSSUs[ind].xpos = -1
+                prevSSUs[ind].ypos = -1
                 prevSSUs[ind].last_time_modified = time
                 afterSSU = cp.copy(prevSSUs[ind])
                 self.changes.append(Change(beforeSSU,afterSSU))
@@ -390,7 +394,7 @@ class LogicHandler:
                 ind = prevSSUs.index(SSU(x=prevPos,y=ssu_y_up))
                 beforeSSU = cp.copy(prevSSUs[ind])
                 prevSSUs[ind].xpos = -1
-                prevSSUs[ind].ypos = ssu_y_base
+                prevSSUs[ind].ypos = -1
                 prevSSUs[ind].last_time_modified = time
                 afterSSU = cp.copy(prevSSUs[ind])
                 self.changes.append(Change(beforeSSU,afterSSU))
@@ -452,35 +456,51 @@ class LogicHandler:
             beforeXPos = change.before.xpos
             beforeYPos = change.before.ypos
             beforeTime = change.before.last_time_modified
+            beforeZoom = change.before.zoom
             afterObj = change.after
             afterXPos = change.after.xpos
             afterYPos = change.after.ypos
             afterTime = change.after.last_time_modified
+            afterZoom = change.after.zoom
             if isinstance(beforeObj,SSU):
+                if beforeXPos == -1 and beforeYPos == -1:
+                    beforeXPos = (afterXPos-15)+30*rand.random()
+                    beforeYPos = rand.choice([0.3,0.7])
+                    beforeTime = afterTime - 5
+                    beforeZoom = 0.01
+                    afterZoom = 0.4
                 if afterXPos == -1:
                     beforeObj.xpos = -1
+                    beforeYPos = 0.55
                     beforeTime = afterTime
-                    afterTime += 15
-                    afterXPos = beforeXPos
-                    afterYPos = 1.1
+                    beforeZoom = 0.4
+                    afterXPos = (beforeXPos-15)+30*rand.random()
+                    afterYPos = 0.7
+                    afterZoom = 0.01
             elif isinstance(beforeObj,TC):
                 if beforeXPos == -1 and beforeYPos == -1 and afterXPos > -1:
                     beforeObj.ypos = afterObj.ypos
-                    beforeTime = afterTime - 15
-                    beforeXPos = afterXPos
-                    beforeYPos = 1.1
+                    beforeXPos = (afterXPos-15)+30*rand.random()
+                    beforeYPos = 0.7
+                    beforeTime = afterTime - 5
+                    beforeZoom = 1
+                    afterZoom = 50
                 if afterXPos == -1 and afterYPos == -1:
                     beforeObj.xpos = -1
                     beforeObj.ypos = -1
                     beforeTime = afterTime
-                    afterTime += 15
-                    afterXPos = beforeXPos
-                    afterYPos = 1.1
+                    beforeZoom = 50
+                    afterXPos = (beforeXPos-15)+30*rand.random()
+                    afterYPos = 0.7
+                    afterTime += 5
+                    afterZoom = 1
             elif isinstance(beforeObj,LSU):
                 if beforeXPos == -1:
-                    beforeTime = afterTime - 15
-                    beforeXPos = afterXPos
-                    beforeYPos = -0.1
+                    beforeXPos = (afterXPos-15)+30*rand.random()
+                    beforeYPos = 0.3
+                    beforeTime = afterTime - 5
+                    beforeZoom = 0.01
+                    afterZoom = 0.4
                 if afterXPos == -1:
                     # May need to mark everything in order to prevent array indexing issues
                     # Ribosome moves along with states so you can't just change the time
@@ -489,21 +509,25 @@ class LogicHandler:
                     beforeObj.xpos = -1
                     beforeObj.ypos = 0.5
                     beforeTime = afterTime
-                    afterTime += 20
-                    afterXPos = beforeXPos
-                    afterYPos = -0.1
+                    beforeZoom = 0.4
+                    afterTime += 5
+                    afterXPos = (beforeXPos-15)+30*rand.random()
+                    afterYPos = 0.3
+                    afterZoom = 0.01
                     terminating = True
             totalXDist = afterXPos - beforeXPos
             totalYDist = afterYPos - beforeYPos
             totalTime = afterTime - beforeTime
+            totalZoom = afterZoom - beforeZoom
             badStates = [S for S in frames if S.time > beforeTime and S.time < afterTime]
             for istate, state in enumerate(badStates):
                 passedTime = state.time - beforeTime
                 fracTime = passedTime / totalTime
                 newXPos = beforeXPos + fracTime * totalXDist
                 newYPos = beforeYPos + fracTime * totalYDist
+                newZoom = beforeZoom + fracTime * totalZoom
                 if terminating == True and passedTime <= 10:
-                    state.effects.append(Effect(x=afterXPos,y=0.75,n='termination',
+                    state.effects.append(Effect(x=afterXPos,y=0.5,n='termination',
                         ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','termination.jpg']))
                     pass
                 if isinstance(beforeObj,SSU):
@@ -518,6 +542,7 @@ class LogicHandler:
                     import IPython,sys;IPython.embed();sys.exit()
                 badList[index].xpos = newXPos
                 badList[index].ypos = newYPos
+                badList[index].zoom = newZoom
         return frames
 
 if __name__ == '__main__':

@@ -2,10 +2,11 @@ import os
 
 class TC:
 
-    def __init__(self,x=-1,y=-1,ltm=-1):
+    def __init__(self,x=-1,y=-1,ltm=-1,z=50):
         self.xpos = x
         self.ypos = y
         self.last_time_modified = ltm
+        self.zoom = z
         self.image_path = os.path.join(*[
             'C:\\','Users','alexd','Documents','faeder','visualization','complex','tc.png'
             #'C:\\','Users','Akhlore','visualization','complex','tc.png'
@@ -43,3 +44,11 @@ class TC:
     @last_time_modified.setter
     def last_time_modified(self,value):
         self._last_time_modified = value
+
+    @property
+    def zoom(self):
+        return self._zoom
+
+    @zoom.setter
+    def zoom(self,value):
+        self._zoom = value

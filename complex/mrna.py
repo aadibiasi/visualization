@@ -3,7 +3,7 @@ import os
 class MRNA:
     
     def __init__(self,yinit=0.5):
-        self.xlen = 278
+        self.xlen = 277
         self.y = yinit
         self.image_path = os.path.join(*[
              'C:\\','Users','Akhlore','visualization','complex','mrnared.png'
