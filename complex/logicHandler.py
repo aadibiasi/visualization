@@ -163,7 +163,7 @@ class LogicHandler:
 
                 # Effects
                 if Effect(x=0,y=ssu_y_base,n='cap') not in prevEffs: # I don't think this line should be needed but it is?
-                    prevEffs.append(Effect(x=0,y=ssu_y_base,n='cap',
+                    prevEffs.append(Effect(x=0,y=ssu_y_base,n='cap',z=0.15,
                         ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','cap.png']))
                         #ip=['C:\\','Users','Akhlore','visualization','complex','cap.png']))
 
@@ -225,7 +225,7 @@ class LogicHandler:
 
                 # Effects
                 if prevPos == 30:
-                    prevEffs.append(Effect(x=0,y=ssu_y_base,n='cap',
+                    prevEffs.append(Effect(x=0,y=ssu_y_base,n='cap',z=0.15,
                     ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','cap.png']))
                     #ip=['C:\\','Users','Akhlore','visualization','complex','cap.png']))
 
@@ -418,10 +418,10 @@ class LogicHandler:
             #collisions
             if 'collide' in rxnType:
                 if 'backward' in rxnType:
-                    prevEffs.append(Effect(x=prevPos-15,y=ssu_y_base,n='collision',
+                    prevEffs.append(Effect(x=prevPos-15,y=ssu_y_base,n='collision',z=0.03,
                         ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','star.png']))
                 else:
-                    prevEffs.append(Effect(x=prevPos+15,y=ssu_y_base,n='collision',
+                    prevEffs.append(Effect(x=prevPos+15,y=ssu_y_base,n='collision',z=0.03,
                         ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','star.png']))
                 stateList.append(State(time,prevSSUs,prevTCs,prevLSUs,prevEffs))
                 continue
@@ -527,8 +527,8 @@ class LogicHandler:
                 newYPos = beforeYPos + fracTime * totalYDist
                 newZoom = beforeZoom + fracTime * totalZoom
                 if terminating == True and passedTime <= 10:
-                    state.effects.append(Effect(x=afterXPos,y=0.5,n='termination',
-                        ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','termination.jpg']))
+                    state.effects.append(Effect(x=afterXPos,y=0.5,n='termination',z=0.175,
+                        ip=['C:\\','Users','alexd','Documents','faeder','visualization','complex','termination.png']))
                     pass
                 if isinstance(beforeObj,SSU):
                     badList = state.ssus

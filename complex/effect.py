@@ -2,10 +2,11 @@ import os
 
 class Effect:
 
-    def __init__(self,x=-1,y=-1,n='',ip=[]):
+    def __init__(self,x=-1,y=-1,n='',z=1,ip=[]):
         self.xpos = x
         self.ypos = y
         self.name = n
+        self.zoom = z
         if len(ip) > 0:
             self.image_path = os.path.join(*ip)
         else:
@@ -44,6 +45,14 @@ class Effect:
     @name.setter
     def name(self,value):
         self._name = value
+
+    @property
+    def zoom(self):
+        return self._zoom
+
+    @zoom.setter
+    def zoom(self,value):
+        self._zoom = value
 
     @property
     def image_path(self):

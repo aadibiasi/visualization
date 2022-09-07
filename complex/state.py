@@ -13,7 +13,6 @@ class State:
         self.tcs = tc
         self.lsus = l
         self.effects = e
-        #TODO generate smooth states
 
     def __str__(self):
         return f'Time: {self.time}\nSSUs: {self.ssus}\nLSUs: {self.lsus}'
