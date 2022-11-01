@@ -21,7 +21,6 @@ class Plotter:
         effects = state.effects
         
         # first let's plot mrna
-        
         # # get mrna image array
         # with open(mrna.image_path, "rb+") as imfile:
         #     mrna_arr_img = plt.imread(imfile)
